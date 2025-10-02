@@ -1,3 +1,10 @@
+# IDE Project Files
+/.idea
+/.vscode
+.project
+.cproject
+.settings/
+
 # Prerequisites
 *.d
 
