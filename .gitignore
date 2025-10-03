@@ -1,6 +1,6 @@
 # LaTeX
-/dissertation/out
-/dissertation/auxil
+/report/out
+/report/auxil
 
 # IDE Project Files
 /.idea
