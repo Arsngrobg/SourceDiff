@@ -69,19 +69,19 @@
     \RequirePackage{pgfgantt}
 
 % Global Commands:
-    % \mytitle               -> Gets the title of the document
+    % \mytitle                 -> Gets the title of the document
     \newcommand\mytitle{ \@title }
 
-    % \author                -> Defines the author for this document and a member type
-    % \myauthor              -> Gets the author of this document
+    % \author                  -> Defines the author for this document and a member type
+    % \myauthor                -> Gets the author of this document
     \newcommand*{\@myauthor}{}
     \renewcommand*{\author}[1] {
         \renewcommand*{\@myauthor}{ #1 }
     }
     \newcommand*{\myname}{ \@myauthor }
 
-    % \supervisor{name}      -> Assigns a supervisor to this document
-    % \mysupervisor          -> Gets the assigned supervisor
+    % \supervisor{name}        -> Assigns a supervisor to this document
+    % \mysupervisor            -> Gets the assigned supervisor
     \newcommand*{\supervisor}[1] {
         \renewcommand*{\@supervisor}{ #1 }
     }
@@ -90,32 +90,38 @@
     }
     \newcommand{\mysupervisor}{ \@supervisor }
 
-    % \registration{id}      -> Assigns a UEA student registration number to this document
-    % \myreg                 -> Gets the student's UEA registration number
+    % \registration{id}        -> Assigns a UEA student registration number to this document
+    % \myreg                   -> Gets the student's UEA registration number
     \newcommand*{\registration}[1] { \renewcommand*{\@registration}{#1} }
     \newcommand*{\@registration}{ \ClassError{cmpfinalreport}{No \string\registration\space given}{} }
     \newcommand{\myreg}{ \@registration }
 
-    % \ccode{code}           -> Assigns the 3rd year project module code to this document
-    % \mycode                -> Gets the 3rd year project module code
+    % \ccode{code}             -> Assigns the 3rd year project module code to this document
+    % \mycode                  -> Gets the 3rd year project module code
     \newcommand*{\ccode}[1] { \renewcommand*{\@ccode}{#1} }
     \newcommand*{\@ccode} { \ClassError{cmpfinalreport}{No \string\ccode\space given}{} }
     \newcommand{\myccode} { \@ccode }
 
-    % \acknowledgements{ack} -> Used in the final report to include any acknowledgements
+    % \acknowledgements{ack}   -> Used in the final report to include any acknowledgements
     \newcommand\@acknowledgements\@empty
     \newcommand{\acknowledgements}[1]{ \renewcommand{\@acknowledgements}{#1} }
 
-    % \summary{sum}          -> Replaces use of abstract environment and acts as a summarising text for the document
+    % \summary{sum}            -> Replaces use of abstract environment and acts as a summarising text for the document
     \newcommand{\summary}[1] { \renewcommand{\@summary}{#1} }
     \newcommand{\@summary}{ \ClassError{cmpfinalreport}{No \string\summary\space given}{} }
 
-    % \s{name}{id}           -> generates a new section with the attached label of the same name
+    % \s{name}{id}             -> generates a new section with the attached label of the same name
     \newcommand*{\s}[2] {
         \section{#1}
         \label{sec:#2}
     }
     \newcommand*{\@s} { \@ClassError{cmpfinalreport}{No Section Name Given} }
+
+    % \ss{name}{id}            -> Generates a new subsection with the attached label of the same name
+    \newcommand*{\ss}[2] {
+        \subsection{#1}
+        \label{sec:#2}
+    }
 
     % \confstatement{statement} -> Provides a censoring watermark for confidential statements
     \global\newcommand{\@confstatement}\empty
@@ -134,7 +140,7 @@
         }
     }
 
-    % \nolist                -> Sets the document to not use Table of Figures & Table of Contents
+    % \nolist                  -> Sets the document to not use Table of Figures & Table of Contents
     \newif\if@list
     \@listtrue
     \newcommand{\nolist} {
@@ -143,12 +149,12 @@
         \@listfalse
     }
 
-    % \twoPageLists           -> Formats the Lists of Tables & List of Figures
+    % \twoPageLists             -> Formats the Lists of Tables & List of Figures
     \newif\if@twoPageLists
     \@twoPageListstrue
     \newcommand{\onePageLists}{\@twoPageListsfalse}
 
-    % \HLine{thickness}      -> Displays a horizontal line of thickness
+    % \HLine{thickness}        -> Displays a horizontal line of thickness
     \newcommand{\HLine}[1] {
         \noalign {
             \global\setlength
@@ -167,19 +173,19 @@
         }
     }
 
-    % \mtnote{content}       -> Displays a note in the middle of the page
+    % \mtnote{content}         -> Displays a note in the middle of the page
     \newcommand{\mtnote}[1] { \textsuperscript{\TPTtagStyle{#1}} }
 
-    % \hrule                 -> Shorthand for displaying a thick horizontal line in a table
+    % \hrule                   -> Shorthand for displaying a thick horizontal line in a table
     \newcommand{\uhrule} { \midrule[\heavyrulewidth] }
 
-    % \LL                    -> Shorthand for \RaggedRight
+    % \LL                      -> Shorthand for \RaggedRight
     \newcommand{\LL} { \RaggedRight }
 
-    % \RR                    -> Shorthand for \RaggedLeft
+    % \RR                      -> Shorthand for \RaggedLeft
     \newcommand{\RR} { \RaggedLeft }
 
-    % \CC                    -> Shorthand for \Centering
+    % \CC                      -> Shorthand for \Centering
     \newcommand{\CC} { \Centering }
 
 % Style Configurations:
