@@ -110,13 +110,6 @@
     \newcommand{\summary}[1] { \renewcommand{\@summary}{#1} }
     \newcommand{\@summary}{ \ClassError{cmpfinalreport}{No \string\summary\space given}{} }
 
-    % \s{name}{id}             -> generates a new section with the attached label of the same name
-    \newcommand*{\s}[2] {
-        \section{#1}
-        \label{sec:#2}
-    }
-    \newcommand*{\@s} { \@ClassError{cmpfinalreport}{No Section Name Given} }
-
     % \ss{name}{id}            -> Generates a new subsection with the attached label of the same name
     \newcommand*{\ss}[2] {
         \subsection{#1}
@@ -565,4 +558,4 @@
 
     \fi
     \pagestyle{reportheadings}
-    \fi
+\fi
