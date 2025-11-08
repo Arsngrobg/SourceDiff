@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{cmpreport}[03-10-2025 v5.42 (Pierre Chardaire) Third year Project Reports - Modified by Arsngrobg]
+\ProvidesClass{ueacmpreport}[03-10-2025 v5.42 (Pierre Chardaire) Third year Project Reports - Modified by Arsngrobg]
 
 % Base this class on KOMA script article class file - A 5mm binding is added to margin
 \LoadClass[12pt, BCOR=0.5cm, twoside=false]{scrartcl}
@@ -109,12 +109,6 @@
     % \summary{sum}            -> Replaces use of abstract environment and acts as a summarising text for the document
     \newcommand{\summary}[1] { \renewcommand{\@summary}{#1} }
     \newcommand{\@summary}{ \ClassError{cmpfinalreport}{No \string\summary\space given}{} }
-
-    % \ss{name}{id}            -> Generates a new subsection with the attached label of the same name
-    \newcommand*{\ss}[2] {
-        \subsection{#1}
-        \label{sec:#2}
-    }
 
     % \confstatement{statement} -> Provides a censoring watermark for confidential statements
     \global\newcommand{\@confstatement}\empty
@@ -245,14 +239,14 @@
         \DeclareExpandableDocumentCommand{\mcr}{o d() m}{
             \IfNoValueTF{\#1}
             {
-                \IfNoValueTF{#2}
-                {\multicolumn{1}{r}{#3}}
-                {\multicolumn{1}{R{#2}}{#3}}
+                \IfNoValueTF{\#2}
+                {\multicolumn{1}{r}{\#3}}
+                {\multicolumn{1}{R{\#2}}{\#3}}
             }
             {
-                \IfNoValueTF{#2}
-                {\multicolumn{#1}{r}{#3}}
-                {\multicolumn{#1}{R{#2}}{#3}}
+                \IfNoValueTF{\#2}
+                {\multicolumn{\#1}{r}{\#3}}
+                {\multicolumn{\#1}{R{\#2}}{\#3}}
             }
         }
     }

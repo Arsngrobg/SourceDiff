@@ -16,13 +16,70 @@
                   }
 
 \begin{document}
-    \bibliography{report}
+    \section{Introduction}\label{sec:introduction}
+        The Iridium project is a tool for performing advanced code analysis for measuring and minimizing the distance
+        between codebases.
+        It leverages static analysis of source code using parse trees (PTs), and pattern recognition
+        techniques, to provide useful metrics and helpful refactoring suggestions to align codebases more closely, or
+        highlight significant divergences in code structure.
+        \newline\newline
+        The main aim of this project is to analyse source code, primarily for plagiarism, either by copy-pasting from
+        programming forums such as StackOverflow (StackExchange), Reddit or GitHub.
+        Alternatively, through the use of generative AI such as ChatGPT, Gemini, and Claude.
+        By using parse trees we can analyse the source code based on structure and syntax.
+        \newline\newline
+        The areas of knowledge required for this project are the idea of parse trees (Concrete Syntax Tree - CST), how
+        they differ from Abstract Syntax Trees (ASTs); graph comparison algorithms or graph difference algorithms.
 
-    \newpage
-    \section{Tree Sitter API}\label{sec:tree-sitter-api} {
-        Tree Sitter is a parsing generator tool and an incremental parsing library. It is advertised as fast & efficient
-        at building and updating concrete syntax trees as modifications are made to the source. This API is perfect for
-        this type of software as it allows for a wide range of support for various languages without relying on 1st
-        party/in-house support for other languages. For now, I will be using the C parser for demonstration purposes.
-    }
+    \section{Current Trends and Tools}\label{sec:current-trends-and-tools}
+        With the increased overwhelming presence of generative AI, so has the amount of AI-generated code in production.
+        The concept of \("\)Vibe Coding\("\) - a term defined by Andrej Karpathy, former Director of AI at
+        Tesla, has gained niche popularity as of 2025 where a non-programming-savvy user queries an
+        AI agent to produce a concept of a product for them, many upcoming generative AI programming tools such as
+        Cursor and Sonnet are being adopted by developers in order to lazily generate code for them\citep{VibeCoding}.
+        However, most code produced from them are generally \textit{unsafe} and are erroneous in most cases.
+        \newline\newline
+        An example of this is AI-generated security reports given to the CURL development team in order to easily
+        complete a bug bounty.
+        In the example, a bug-bounty hunter provided the newly \textit{(at the time)} websocket functionality to an
+        unknown LLM and it essentially \("\)hallucinated\("\) a well-known and fundamental security issue:
+        \textbf{buffer overflow}.
+        Now, this issue was not actually present in the code as they had implemented the check right below the buffer
+        operation, this is a case example of how poor LLMs can be in security critical environments or that they can
+        highlight issues that do not even exist\citep{CurlAISlop}.
+        How this relates to this project?
+        developers can easily feed a huge codebase in order to provide enough context to allow it to somewhat generate
+        a \("\)solution\("\) to the developers problem with much fewer keystrokes.
+
+        \subsection{Qodana}\label{subsec:qodana-jetbrains}
+            JetBrains, a company that specialises in top-of-the-line IDEs for various languages, has a tool called
+            Qodana for \("\)spotting and fixing issues before they escalate.
+            Running static analysis all the way from the IDE to the CI, it enables developers to detect and fix code
+            smells, duplicates, code complexities, vulnerabilities, license issues, and more - and ship their software
+            with confidence.\("\)\cite{Qodana} It is designed primarily for commercial use and can be self-hosted.
+
+        \subsection{Stanford's MOSS}\label{subsec:stanford-moss}
+            For a Measure of Software Similarity, or MOSS for short, is a piece of software that was developed by
+            Stanford university in 1994\citep{StanfordMOSS} by Alex Aiken\citep{StanfordMOSSAuthor}.
+            It supports a wide array of languages: \("\)C, C++, Java, C\#, Python, Visual Basic, Javascript, FORTRAN,
+            ML, Haskell, Lisp, Scheme, Pascal, Modula2, Ada, Perl, TCL, Matlab, VHDL, Verilog, Spice, MIPS assembly,
+            a8086 assembly, a8086 assembly, HCL2.\("\)\citep{MOSSLanguages}
+            MOSS uses similarity scores as a metric for determining \textit{suspicious} code.
+            \("\)These scores are useful for judging the relative amount of matching between different pairs of programs
+            and for more easily seeing which pairs of programs stick out with unusual amounts of matching\ldots
+            Someone must still look at the code.\("\)\citep{MOSSLanguages}
+            The software is provided through a software as service (SaSS) model by creating an account.
+
+    \section{Justifications}\label{sec:justifications}
+        Hi
+
+    \section{Tree Sitter API}\label{sec:tree-sitter-api}
+        Tree Sitter is a parsing generator tool and an incremental parsing library.
+        It is advertised as fast \& efficient at building and updating concrete syntax trees as modifications are made
+        to the source.
+        This API is perfect for this type of software as it allows for a wide range of support for various languages
+        without relying  on 1st party/in-house support for other languages.
+        For now, I will be using the C parser for demonstration purposes.
+
+    \bibliography{report}
 \end{document}
