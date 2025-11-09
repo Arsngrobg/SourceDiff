@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 4.0)
-project(Iridium C)
+project(Iridium)
 
 set(CMAKE_C_STANDARD 11)
 
 add_executable(Iridium
-        src/main.c)
+        languages/C/parser.c
+        src/api.h
+        src/main.c
+)
