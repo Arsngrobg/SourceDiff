@@ -57,6 +57,8 @@
             Running static analysis all the way from the IDE to the CI, it enables developers to detect and fix code
             smells, duplicates, code complexities, vulnerabilities, license issues, and more - and ship their software
             with confidence.\("\)\cite{Qodana} It is designed primarily for commercial use and can be self-hosted.
+            The primary use-case for this software is to ensure that code for a given project is compliant with company
+            standards for code quality or removal of \("\)code smells\("\).
 
         \subsection{Stanford's MOSS}\label{subsec:stanford-moss}
             For a Measure of Software Similarity, or MOSS for short, is a piece of software that was developed by
@@ -71,15 +73,47 @@
             The software is provided through a software as service (SaSS) model by creating an account.
 
     \section{Justifications}\label{sec:justifications}
-        Hi
+        There are not a good deal of self-hostable software which allows for this method of code analysis.
+        As mentioned before, Qodana by JetBrains is more of a quality analysis tool rather than a plagiarism detection
+        tool.
+        Stanford's MOSS provides a similarity metric for code provided a database, however is not self-hostable and
+        specifically requires a MOSS account, which you need to request in order to obtain one.
+        Also, Stanford's MOSS only supports a handful of languages, most of which are fairly uncommon for enterprise
+        projects.
+        \newline\newline
+        The main concept of this project is to provide an easy-to-integrate solution for projects which can either check
+        for plagiarism, the use of generative AI or analysing code quality for potential flattening of code, translating
+        code from one place to another - e.g.\ moving duplicated code into a function more modular code
 
-    \section{Tree Sitter API}\label{sec:tree-sitter-api}
-        Tree Sitter is a parsing generator tool and an incremental parsing library.
-        It is advertised as fast \& efficient at building and updating concrete syntax trees as modifications are made
-        to the source.
-        This API is perfect for this type of software as it allows for a wide range of support for various languages
-        without relying  on 1st party/in-house support for other languages.
-        For now, I will be using the C parser for demonstration purposes.
+    \section{Critical Review}\label{sec:critical-review}
+        Here are some papers I have read in order to gain a better understanding of similar methods that have already
+        been applied for related reasons.
+        
+        \subsection{Code Clone Detection Based on Image Similarity}
+        \label{subsec:code-cloning}
+            This paper, by Chaiyong Ragkhitwetsagul, Jens Krinke at the University College London in 2018 and Bruno
+            Marnette, uses an unconventional method of analysing images in order to determine the similarity of two
+            codebases, specifically two smaller code snippets.
+            It takes in two code snippets: Foo.java and Bar.java, and applies a sequence of pre-processing steps to
+            them: removal of comments, pretty printing, and syntax highlighting.
+            It then converts the processed code snippets into two pngs: foo.png and bar.png.
+            It applies two image processing steps: negative image conversion, where the overlap of the two images cast
+            a shadow on each other; and a Gaussian blur which allows for stuff like simple renaming to still be
+            identified as it will use the rough shape of the code and not exact pixels.
+            Finally, both processed images are analysed using their 8-bit average of their RGB values.
+            \newline\newline
+            This has some caveats, the performance of this algorithm degrades quickly with the size of the images - the
+            paper uses $300 \times 300$ images since it
+            \("\)a good balance between the accuracy and speed of detection.\("\)\citep{CloneDetection}
+
+    \section{What I Will Be Using to Tackle This Project}\label{sec:the-plan}
+        \subsection{Tree Sitter API}\label{subsec:tree-sitter-api}
+            Tree Sitter is a parsing generator tool and an incremental parsing library.
+            It is advertised as fast \& efficient at building and updating concrete syntax trees as modifications are
+            made to the source.
+            This API is perfect for this type of software as it allows for a wide range of support for various languages
+            without relying  on 1st party/in-house support for other languages.
+            For now, I will be using the C parser for demonstration purposes.
 
     \bibliography{report}
 \end{document}
