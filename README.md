@@ -1,8 +1,8 @@
-# Iridium
-**Iridium** is an advanced code analysis tool designed to measure and minimize structural distance between codebases.
+# SourceDiff
+**SourceDiff** is an advanced code analysis tool designed to measure and minimize structural distance between codebases.
 It helps developers, educators, and code reviewers by analysing how similar codebases are.
 
-By leveraging static analysis, parse trees (PTs), and pattern recognition technique, **Iridium** provides
+By leveraging static analysis, parse trees (PTs), and pattern recognition technique, **SourceDiff** provides
 **helpful refactoring suggestions** to align codebases more closely or to highlight significant divergences. This makes
 it particularly useful for:
 - **Plagiarism or collusion** in academic environments
@@ -19,5 +19,5 @@ it particularly useful for:
   - Maintain consistent programming styles across the codebase
 
 ## Plug-n-Play
-**Iridium** uses the [Tree Sitter](https://tree-sitter.github.io/tree-sitter) API for parsing source code into parse
-trees, and they provide a large database of pre-generated incremental parsers for use in **Iridium**.
+**SourceDiff** uses the [Tree Sitter](https://tree-sitter.github.io/tree-sitter) API for parsing source code into parse
+trees, and they provide a large database of pre-generated incremental parsers for use in **SourceDiff**.
