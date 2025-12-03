@@ -1,6 +1,5 @@
-# LaTeX
-/report/out
-/report/aux
+# IDE
+/.idea
 
 # Compiled class file
 *.class
