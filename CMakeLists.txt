@@ -3,8 +3,15 @@ project(SourceDiff C)
 
 set(CMAKE_C_STANDARD 11)
 
-# includes
-include_directories(vendor/tree-sitter/lib/include vendor/tree-sitter/lib/src)
+# easy-args
+include_directories(
+        vendor/easy-args/includes
+)
+# tree-sitter
+include_directories(
+        vendor/tree-sitter/lib/include
+        vendor/tree-sitter/lib/src
+)
 
 # globs
 file(GLOB SOURCES src/*.c src/*.h)

@@ -1,38 +1,19 @@
-#include <stdbool.h>
-#include <stdio.h>
+#define BOOLEAN_ARGS \
+    BOOLEAN_ARG(help,    "-h", "Shows the usage of SourceDiff") \
+    BOOLEAN_ARG(version, "-v", "Prints the current version of SourceDiff") \
 
-#define
+#include "easyargs.h"
 
-#define HELP                                    \
-"SourceDiff (ver %s) Usage:                 \n" \
-"   Usage:                                  \n" \
-"       - SourceDiff [-h/--help]            \n" \
-"         Displays the usage of SourceDiff  \n" \
-"                                           \n" \
-"       - SourceDiff [-v/--version]         \n" \
-"         Displays the version of SourceDiff\n" \
-
-#define VERSION_MAJOR 0
-#define VERSION_MINOR 1
-#define VERSION VERSION_MAJOR#"."#VERSION_MINOR
-
-#define SHORTHAND_HELP    ("-h"       )
-#define LONGHAND_HELP     ("--help"   )
-#define SHORTHAND_VERSION ("-v"       )
-#define LONGHAND_VERSION  ("--version")
-
-bool SD_CLI_ParseCommands(int argc, char *argv[]) {
-    if (argc == 1) {
-        printf(HELP, VERSION);
-        return true;
-    }
-
-    return false;
-}
-
-int main(int argc, char *argv[]) {
-    if (SD_CLI_ParseCommands(argc, argv)) {
+int main(const int argc, char *argv[]) {
+    args_t args = make_default_args();
+    if (!parse_args(argc, argv, &args) || args.help) {
+        printf("HELP!\n");
         return 1;
     }
+
+    if (args.version) {
+        printf("SourceDiff (ver 1.0)\n");
+    }
+
     return 0;
 }
