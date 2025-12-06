@@ -1,6 +1,10 @@
 # Language Directory
 /languages
 
+# Report
+/report/auxil
+/report/out
+
 # IDE
 /.idea
 
