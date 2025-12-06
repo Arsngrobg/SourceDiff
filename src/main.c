@@ -7,7 +7,7 @@
 int main(const int argc, char *argv[]) {
     args_t args = make_default_args();
     if (!parse_args(argc, argv, &args) || args.help) {
-        printf("HELP!\n");
+        print_help("SourceDiff");
         return 1;
     }
 
