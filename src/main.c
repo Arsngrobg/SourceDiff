@@ -17,8 +17,8 @@ int main(const int argc, char *argv[]) {
 
     if (args.version) {
         printf("SourceDiff (ver 1.0)\n");
-    } else if (args.file1 && args.file2) {
-        printf("%s, %s\n", args.file1, args.file2);
+    } else if (args.source1 && args.source2) {
+        printf("%s, %s\n", args.source1, args.source2);
     }
 
     return 0;
