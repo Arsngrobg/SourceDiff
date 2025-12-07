@@ -1,4 +1,4 @@
-\documentclass[progress]{class/cmpreport}
+\documentclass[final]{class/cmpreport}
 
 \date             {2025-10-03}
 \title            {Analysing Source Code for AI detection, Plagiarism, Collusion, and Refactoring Using Parse Trees}
@@ -19,4 +19,19 @@
     \section{Introduction}\label{sec:introduction}
         SourceDiff is a tool for performing advanced code analysis for measuring and minimizing the distance between
         codebases.
+        It leverages static analysis of source code using parse trees, and pattern recognition techniques to provide
+        useful metrics and helpful refactoring suggestions to align codebases more closely, or highlight significant
+        divergences in code structure.
+        \newline\newline
+        The primary aim of this project is to analyse source code, primarily for plagiarism detection, either by
+        copy-pasting from programming forums such as StackOverflow\citep{StackOverflow-CopyPaste},
+        or Reddit\citep{Reddit-CopyPaste}.
+        Alternatively, through the use of generative AI tools such as \("\)ChatGPT and other artificial intelligence
+        tools \ldots while traditional forms of plagiarism show a marked decline.\("\)\citep{Students-Cheating-Using-ChatGPT}
+        By using parse trees we can analyse the source code based on structure and syntax.
+        \newline\newline
+        Required areas of knowledge for this report are: concrete syntax tress (CTS - or Parse Trees), and how they
+        differ from abstract syntax trees; and various tree/graph analysis algorithms.
+
+    \bibliography{doc}
 \end{document}
