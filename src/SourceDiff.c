@@ -1,6 +1,5 @@
 #define MAX_PATH (260)   // windows
 #define MAX_CMD  (32767) // windows
-#include <stdarg.h>
 
 int SD_CompileLanguage   (const char *language_id);            // compiles the language into a dynamic library
 int SD_LoadCachedLanguage(const char *language_id);            // loads the cached language library
@@ -10,6 +9,7 @@ int SD_ReadSource        (const char *file_path, char *buf[]); // reads the cont
 #include <stdio.h>    // for file operations
 #include <stdlib.h>   // for malloc
 #include <unistd.h>   // for cwd, mkdir
+#include <stdarg.h>   // for variadic arguments
 
 int SD_ExecuteCommand(const char *format, ...) {
     va_list args;
