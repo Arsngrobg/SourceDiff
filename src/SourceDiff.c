@@ -9,14 +9,21 @@
 
 #include "tree_sitter/api.h"
 
-int SD_ExecuteCommand    (const char *format, ...);            // executes the command
-int SD_CompileLanguage   (const char *language_id);            // compiles the language into a dynamic library
-int SD_LoadCachedLanguage(const char *language_id);            // loads the cached language library
-int SD_ReadSource        (const char *file_path, char *buf[]); // reads the contents of the source file into the buffer
-int SD_AnalyseSource     (const char *s1, const char* s2);     // analyses the two source files
-int SD_OutputTree        (TSNode root, int depth);             // prints out the tree
+#define CHILD_COUNT(n) (ts_node_named_child_count(n))
+#define CHILD(n, idx)  (ts_node_named_child(n, idx))
 
 typedef TSLanguage* (*TSLanguageProducer)();
+
+int      SD_ExecuteCommand    (const char *format, ...);            // executes the command
+int      SD_CompileLanguage   (const char *language_id);            // compiles the language into a dynamic library
+int      SD_LoadCachedLanguage(const char *language_id);            // loads the cached language library
+int      SD_ReadSource        (const char *file_path, char *buf[]); // reads the contents of the source file into the buffer
+int      SD_AnalyseSource     (const char *s1, const char* s2);     // analyzes the two source files
+uint32_t SD_GetNodeCount      (TSNode root);                        // gets no. of nodes from root
+uint32_t SD_GetMaxNodes       (TSNode this, TSNode other);          // gets the maximum number of nodes between the two roots
+int      SD_CompareTree       (TSNode this, TSNode other);          // compares the two trees and gives the no. of similar
+int      SD_OutputTree        (TSNode root, int depth);             // prints out the tree
+
 static TSLanguageProducer producer = NULL; // loaded in via SD_LoadLanguage
 
 int SD_ExecuteCommand(const char *format, ...) {
@@ -120,6 +127,8 @@ int SD_AnalyseSource(const char *s1, const char *s2) {
     printf("\n\n== FILE2 ==\n");
     SD_OutputTree(ts_tree_root_node(right), 0);
 
+    uint32_t max = SD_GetMaxNodes(ts_tree_root_node(left), ts_tree_root_node(right));
+
     ts_tree_delete(left);
     ts_tree_delete(right);
     ts_parser_delete(parser);
@@ -127,15 +136,40 @@ int SD_AnalyseSource(const char *s1, const char *s2) {
     return 1;
 }
 
+int SD_CompareTree(const TSNode this, const TSNode other) {
+    uint32_t n = 0;
+    for (int idx = 0; idx < CHILD_COUNT(this); idx++) {
+        const TSNode child = CHILD(this, idx);
+    }
+}
+
+uint32_t SD_GetNodeCount(const TSNode root) {
+    uint32_t n = CHILD_COUNT(root);
+    for (int idx = 0; idx < CHILD_COUNT(root); idx++) {
+        const TSNode child = CHILD(root, idx);
+        n += SD_GetNodeCount(child);
+    }
+
+    return n;
+}
+
+uint32_t SD_GetMaxNodes(const TSNode this, const TSNode other) {
+    const uint32_t tn = SD_GetNodeCount(this);
+    const uint32_t on = SD_GetNodeCount(other);
+    return max(tn, on);
+}
+
 int SD_OutputTree(const TSNode root, const int depth) {
     for (int _ = 0; _ < depth; _++) {
         printf("|   ");
     }
 
-    printf("[%s]\n", ts_node_type(root));
+    const TSPoint p0 = ts_node_start_point(root);
+    const TSPoint p1 = ts_node_end_point(root);
+    printf("[%s] (%d:%d) -> (%d:%d)\n", ts_node_type(root), p0.row, p0.column, p1.row, p1.column);
 
-    for (int childIdx = 0; childIdx < ts_node_child_count(root); childIdx++) {
-        const TSNode child = ts_node_child(root, childIdx);
+    for (int idx = 0; idx < CHILD_COUNT(root); idx++) {
+        const TSNode child = CHILD(root, idx);
         SD_OutputTree(child, depth + 1);
     }
 
