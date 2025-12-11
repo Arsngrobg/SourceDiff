@@ -58,7 +58,7 @@ typedef enum {
 } SD_Bool;
 
 // macro to convert the literal value into a SD_Bool
-#define SD_BOOL(x) ((x) ? SD_TRUE : SD_FALSE)
+#define SD_BOOL(x)             ((x) ? SD_TRUE : SD_FALSE)
 
 typedef TSLanguage* (*LanguageProducer)();
 
@@ -68,28 +68,46 @@ typedef struct {
     TSLanguage *ts_lang;                     // the tree-sitter language backend
 } SD_LanguageData;
 
+// the operation types to execute on the tree
 typedef enum {
-    SD_TREE_DELETE  = 3,
-    SD_TREE_INSERT  = 3,
-    SD_TREE_RELABEL = 2
+    SD_TREE_DELETE,
+    SD_TREE_INSERT,
+    SD_TREE_RELABEL
 } SD_TreeOperation;
 
+#define SD_TREE_DELETE_COST  3
+#define SD_TREE_INSERT_COST  3
+#define SD_TREE_RELABEL_COST 1
+#define SD_DIFF_MAX_OPS      500
+
+// struct to pack the diff data in, it primarily records the operations that must be applied to sa to reach sb
+typedef struct {
+    u64         ops;               // the number of operations
+    const char *sa;                // source code A
+    const char *sb;                // source code B
+    struct {
+        SD_TreeOperation op;       // the operation to perform
+        TSPoint start;             // the position row/col
+        u32 bytes[4];              // the character start and end index
+    } op_seq[SD_DIFF_MAX_OPS];
+} SD_Diff;
+
 // function prototypes
-SD_Bool SD_ExecuteCommand (const char *format, ...);       // executes the supplied command
-SD_Bool SD_GetCompiler    (char **cc);                     // probes a set of compilers to use for language compilation
-SD_Bool SD_CompileLanguage(const char *id);                // compiles the language of the specified ID
-SD_Bool SD_LoadLanguage   (const char *id);                // loads the language of the specified ID
-SD_Bool SD_LoadFile       (const char *path, char *buf[]); // loads in the contents of the file into the buffer
-SD_Bool SD_LoadGlob       (const char *pattern);           // loads the files using the specified glob pattern
-SD_Bool SD_GetDiff        (const char *a, const char *b);  // analyses the two strings
-u32     SD_GetTreeDiff    (TSNode st_a, TSNode st_b);      // gets the edit distance for the two subtrees
+SD_Bool SD_ExecuteCommand (const char *format, ...);           // executes the supplied command
+SD_Bool SD_GetCompiler    (char **cc);                         // probes a set of compilers to use for language comp
+SD_Bool SD_CompileLanguage(const char *id);                    // compiles the language of the specified ID
+SD_Bool SD_LoadLanguage   (const char *id);                    // loads the language of the specified ID
+SD_Bool SD_LoadFile       (const char *path, char *buf[]);     // loads in the contents of the file into the buffer
+SD_Bool SD_GetDiff        (SD_Diff *diff);                     // analyzes the two source files
+SD_Bool SD_GetTreeDiff    (SD_Diff *diff, TSNode a, TSNode b); // gets the edit distance for the two subtrees
+SD_Bool SD_PrintDiff      (const SD_Diff *diff);               // prints the diff
+SD_Bool SD_OutputTree     (const char* src, TSNode root, int depth);
 
 static SD_LanguageData data = {0};
 
 SD_Bool SD_ExecuteCommand(const char *format, ...) {
     va_list args;
     va_start(args, format);
-
     char cmd[SD_MAX_ARG];
     if (vsnprintf(cmd, SD_MAX_ARG, format, args) < 0) {
         fprintf(stderr, "SourceDiff: Failed to format command");
@@ -247,20 +265,19 @@ SD_Bool SD_LoadFile(const char *path, char **buf) {
     return 1;
 }
 
-SD_Bool SD_GetDiff(const char *a, const char *b) {
-    if (a == NULL || b == NULL) return SD_FALSE;
+SD_Bool SD_GetDiff(SD_Diff *diff) {
+    if (diff == NULL) return SD_FALSE;
 
     TSParser *parser = ts_parser_new();
     ts_parser_set_language(parser, data.ts_lang);
 
-    TSTree *tree_a = ts_parser_parse_string(parser, NULL, a, strlen(a));
-    TSTree *tree_b = ts_parser_parse_string(parser, NULL, b, strlen(b));
+    TSTree *tree_a = ts_parser_parse_string(parser, NULL, diff->sa, strlen(diff->sa));
+    TSTree *tree_b = ts_parser_parse_string(parser, NULL, diff->sb, strlen(diff->sb));
 
     const TSNode root_a = ts_tree_root_node(tree_a);
     const TSNode root_b = ts_tree_root_node(tree_b);
 
-    const u32 diff = SD_GetTreeDiff(root_a, root_b);
-    printf("Diff: %d\n", diff);
+    SD_GetTreeDiff(diff, root_a, root_b);
 
     ts_tree_delete(tree_a);
     ts_tree_delete(tree_b);
@@ -268,34 +285,138 @@ SD_Bool SD_GetDiff(const char *a, const char *b) {
     return SD_TRUE;
 }
 
-u32 SD_GetTreeDiff(const TSNode st_a, const TSNode st_b) {
-    const u32 nc_a = ts_node_child_count(st_a);
-    const u32 nc_b = ts_node_child_count(st_b);
-    u32 accum = 0;
+SD_Bool SD_GetTreeDiff(SD_Diff *diff, const TSNode a, const TSNode b) {
+    if (diff == NULL) return SD_FALSE;
 
-    const u32 min_children = min(nc_a, nc_b);
+    const u32 a_cc = ts_node_child_count(a);
+    const u32 b_cc = ts_node_child_count(b);
+
+    const u32 min_children = min(a_cc, b_cc);
     for (u32 idx = 0; idx < min_children; idx++) {
-        const TSNode n_a = ts_node_child(st_a, idx);
-        const TSNode n_b = ts_node_child(st_b, idx);
-        if (strcmp(ts_node_type(n_a), ts_node_type(n_b)) != 0) {
-            accum += SD_TREE_RELABEL;
+        const TSNode c_a = ts_node_child(a, idx);
+        const TSNode c_b = ts_node_child(b, idx);
+
+        const u32 old_ops = diff->ops;
+        SD_GetTreeDiff(diff, c_a, c_b);
+        if (diff->ops > old_ops) {
+            continue;
         }
-        accum += SD_GetTreeDiff(n_a, n_b);
+
+        const u32 c_a_b0 = ts_node_start_byte(c_a);
+        const u32 c_a_b1 = ts_node_end_byte  (c_a);
+        const u32 c_b_b0 = ts_node_start_byte(c_b);
+        const u32 c_b_b1 = ts_node_end_byte  (c_b);
+
+        char slice_a[c_a_b1 - c_a_b0 + 1];
+        char slice_b[c_b_b1 - c_b_b0 + 1];
+        strncpy(slice_a, diff->sa + c_a_b0, c_a_b1 - c_a_b0);
+        strncpy(slice_b, diff->sb + c_b_b0, c_b_b1 - c_b_b0);
+        slice_a[c_a_b1 - c_a_b0] = '\0';
+        slice_b[c_b_b1 - c_b_b0] = '\0';
+
+        if (strcmp(slice_a, slice_b) != 0 && (ts_node_child_count(c_a) == 0 || ts_node_child_count(c_b) == 0)) {
+            diff->op_seq[diff->ops].op       = SD_TREE_RELABEL;
+            diff->op_seq[diff->ops].start    = ts_node_start_point(a);
+            diff->op_seq[diff->ops].bytes[0] = c_a_b0;
+            diff->op_seq[diff->ops].bytes[1] = c_a_b1;
+            diff->op_seq[diff->ops].bytes[2] = c_b_b0;
+            diff->op_seq[diff->ops].bytes[3] = c_b_b1;
+            diff->ops++;
+        }
     }
 
-    if (nc_a > nc_b) {
-        for (u32 idx = nc_b; idx < nc_a; idx++) {
-            const TSNode n_a = ts_node_child(st_a, idx);
-            accum += ts_node_descendant_count(n_a) * SD_TREE_DELETE;
+    if (a_cc > b_cc) {
+        for (u32 idx = b_cc; idx < a_cc; idx++) {
+            const TSNode node = ts_node_child(a, idx);
+            diff->op_seq[diff->ops].op       = SD_TREE_DELETE;
+            diff->op_seq[diff->ops].start    = ts_node_start_point(node);
+            diff->op_seq[diff->ops].bytes[0] = ts_node_start_byte (node);
+            diff->op_seq[diff->ops].bytes[1] = ts_node_end_byte   (node);
+            diff->ops++;
         }
     } else {
-        for (u32 idx = nc_b; idx < nc_b; idx++) {
-            const TSNode n_b = ts_node_child(st_b, idx);
-            accum += ts_node_descendant_count(n_b) * SD_TREE_INSERT;
+        for (u32 idx = a_cc; idx < b_cc; idx++) {
+            const TSNode node = ts_node_child(b, idx);
+            diff->op_seq[diff->ops].op       = SD_TREE_INSERT;
+            diff->op_seq[diff->ops].start    = ts_node_start_point(node);
+            diff->op_seq[diff->ops].bytes[0] = ts_node_start_byte (node);
+            diff->op_seq[diff->ops].bytes[1] = ts_node_end_byte   (node);
+            diff->ops++;
         }
     }
 
-    return accum;
+    return SD_TRUE;
+}
+
+SD_Bool SD_OutputTree(const char* src, const TSNode root, const int depth) {
+    for (int _ = 0; _ < depth; _++) {
+        printf("|   ");
+    }
+
+    const u32 start = ts_node_start_byte(root);
+    const u32 end   = ts_node_end_byte(root);
+    char str[end - start + 1];
+    strncpy(str, src + start, end - start);
+    str[end - start] = '\0';
+
+    printf("[%s]\n", str);
+
+    for (int childIdx = 0; childIdx < ts_node_child_count(root); childIdx++) {
+        const TSNode child = ts_node_child(root, childIdx);
+        SD_OutputTree(src, child, depth + 1);
+    }
+
+    return 1;
+}
+
+SD_Bool SD_PrintDiff(const SD_Diff *diff) {
+    for (u32 idx = 0; idx < diff->ops; idx++) {
+        if (diff->op_seq[idx].op == SD_TREE_RELABEL) {
+            const u32 c_a_b0 = diff->op_seq[idx].bytes[0];
+            const u32 c_a_b1 = diff->op_seq[idx].bytes[1];
+            const u32 c_b_b0 = diff->op_seq[idx].bytes[2];
+            const u32 c_b_b1 = diff->op_seq[idx].bytes[3];
+
+            char slice_a[c_a_b1 - c_a_b0 + 1];
+            char slice_b[c_b_b1 - c_b_b0 + 1];
+            strncpy(slice_a, diff->sa + c_a_b0, c_a_b1 - c_a_b0);
+            strncpy(slice_b, diff->sb + c_b_b0, c_b_b1 - c_b_b0);
+            slice_a[c_a_b1 - c_a_b0] = '\0';
+            slice_b[c_b_b1 - c_b_b0] = '\0';
+
+            printf(
+                "[%2d:%2d] RELABEL \"%s\", \"%s\"\n",
+                diff->op_seq[idx].start.row, diff->op_seq[idx].start.column,
+                slice_a, slice_b
+            );
+        } else {
+            if (diff->op_seq[idx].op == SD_TREE_INSERT) {
+                const u32 start = diff->op_seq[idx].bytes[0];
+                const u32 end   = diff->op_seq[idx].bytes[1];
+                char slice[end - start + 1];
+                strncpy(slice, diff->sb + start, end - start);
+                slice[end - start] = '\0';
+                printf(
+                    "[%2d:%2d] INSERT  \"%s\"\n",
+                    diff->op_seq[idx].start.row, diff->op_seq[idx].start.column,
+                    slice
+                );
+            } else {
+                const u32 start = diff->op_seq[idx].bytes[0];
+                const u32 end   = diff->op_seq[idx].bytes[1];
+                char slice[end - start + 1];
+                strncpy(slice, diff->sa + start, end - start);
+                slice[end - start] = '\0';
+                printf(
+                    "[%2d:%2d] DELETE  \"%s\"\n",
+                    diff->op_seq[idx].start.row, diff->op_seq[idx].start.column,
+                    slice
+                );
+            }
+        }
+    }
+
+    return SD_TRUE;
 }
 
 #define REQUIRED_ARGS \
@@ -333,7 +454,13 @@ i32 main(const i32 argc, char *argv[]) {
             return EXIT_FAILURE;
         }
 
-        return !SD_GetDiff(buf_a, buf_b);
+        SD_Diff diff = {
+            .sa = buf_a,
+            .sb = buf_b
+        };
+        SD_GetDiff  (&diff);
+        SD_PrintDiff(&diff);
+        return EXIT_SUCCESS;
     }
 
     if (args.version) {

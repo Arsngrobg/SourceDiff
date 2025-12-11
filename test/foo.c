@@ -1,6 +1,1 @@
-#include <stdio.h>
-
-int main(void) {
-    printf("Hello, World!\n");
-    return 0;
-}
+float max(const float x, const float b) {return x < b ? x : b;}

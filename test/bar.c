@@ -1,10 +1,1 @@
-#include <stdio.h>
-
-float min(const float a, const float b) {
-    return a < b ? a : b;
-}
-
-int main(void) {
-    printf("Hello, World!\n");
-    return 0;
-}
+float min(const float a, const float b) {return a < b ? a : b;}
