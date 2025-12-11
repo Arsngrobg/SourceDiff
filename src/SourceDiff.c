@@ -82,6 +82,7 @@ SD_Bool SD_LoadLanguage   (const char *id);                // loads the language
 SD_Bool SD_LoadFile       (const char *path, char *buf[]); // loads in the contents of the file into the buffer
 SD_Bool SD_LoadGlob       (const char *pattern);           // loads the files using the specified glob pattern
 SD_Bool SD_GetDiff        (const char *a, const char *b);  // analyses the two strings
+u32     SD_GetTreeDiff    (TSNode st_a, TSNode st_b);      // gets the edit distance for the two subtrees
 
 static SD_LanguageData data = {0};
 
@@ -246,7 +247,7 @@ SD_Bool SD_LoadFile(const char *path, char **buf) {
     return 1;
 }
 
-SD_Bool SD_Analyse(const char *a, const char *b) {
+SD_Bool SD_GetDiff(const char *a, const char *b) {
     if (a == NULL || b == NULL) return SD_FALSE;
 
     TSParser *parser = ts_parser_new();
@@ -255,13 +256,46 @@ SD_Bool SD_Analyse(const char *a, const char *b) {
     TSTree *tree_a = ts_parser_parse_string(parser, NULL, a, strlen(a));
     TSTree *tree_b = ts_parser_parse_string(parser, NULL, b, strlen(b));
 
-    TSNode root_a = ts_tree_root_node(tree_a);
-    TSNode root_b = ts_tree_root_node(tree_b);
+    const TSNode root_a = ts_tree_root_node(tree_a);
+    const TSNode root_b = ts_tree_root_node(tree_b);
+
+    const u32 diff = SD_GetTreeDiff(root_a, root_b);
+    printf("Diff: %d\n", diff);
 
     ts_tree_delete(tree_a);
     ts_tree_delete(tree_b);
     ts_parser_delete(parser);
     return SD_TRUE;
+}
+
+u32 SD_GetTreeDiff(const TSNode st_a, const TSNode st_b) {
+    const u32 nc_a = ts_node_child_count(st_a);
+    const u32 nc_b = ts_node_child_count(st_b);
+    u32 accum = 0;
+
+    const u32 min_children = min(nc_a, nc_b);
+    for (u32 idx = 0; idx < min_children; idx++) {
+        const TSNode n_a = ts_node_child(st_a, idx);
+        const TSNode n_b = ts_node_child(st_b, idx);
+        if (strcmp(ts_node_type(n_a), ts_node_type(n_b)) != 0) {
+            accum += SD_TREE_RELABEL;
+        }
+        accum += SD_GetTreeDiff(n_a, n_b);
+    }
+
+    if (nc_a > nc_b) {
+        for (u32 idx = nc_b; idx < nc_a; idx++) {
+            const TSNode n_a = ts_node_child(st_a, idx);
+            accum += ts_node_descendant_count(n_a) * SD_TREE_DELETE;
+        }
+    } else {
+        for (u32 idx = nc_b; idx < nc_b; idx++) {
+            const TSNode n_b = ts_node_child(st_b, idx);
+            accum += ts_node_descendant_count(n_b) * SD_TREE_INSERT;
+        }
+    }
+
+    return accum;
 }
 
 #define REQUIRED_ARGS \
@@ -299,7 +333,7 @@ i32 main(const i32 argc, char *argv[]) {
             return EXIT_FAILURE;
         }
 
-        return !SD_Analyse(buf_a, buf_b);
+        return !SD_GetDiff(buf_a, buf_b);
     }
 
     if (args.version) {

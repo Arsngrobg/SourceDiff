@@ -1,7 +1,6 @@
-float min(const float a, const float b) {
-    if (a < b) {
-        return b;
-    }
+#include <stdio.h>
 
-    return a;
+int main(void) {
+    printf("Hello, World!\n");
+    return 0;
 }
