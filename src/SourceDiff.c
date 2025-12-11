@@ -370,8 +370,11 @@ SD_Bool SD_OutputTree(const char* src, const TSNode root, const int depth) {
 }
 
 SD_Bool SD_PrintDiff(const SD_Diff *diff) {
+    u32 cost = 0;
     for (u32 idx = 0; idx < diff->ops; idx++) {
         if (diff->op_seq[idx].op == SD_TREE_RELABEL) {
+            cost += SD_TREE_RELABEL_COST;
+
             const u32 c_a_b0 = diff->op_seq[idx].bytes[0];
             const u32 c_a_b1 = diff->op_seq[idx].bytes[1];
             const u32 c_b_b0 = diff->op_seq[idx].bytes[2];
@@ -391,6 +394,8 @@ SD_Bool SD_PrintDiff(const SD_Diff *diff) {
             );
         } else {
             if (diff->op_seq[idx].op == SD_TREE_INSERT) {
+                cost += SD_TREE_INSERT_COST;
+
                 const u32 start = diff->op_seq[idx].bytes[0];
                 const u32 end   = diff->op_seq[idx].bytes[1];
                 char slice[end - start + 1];
@@ -402,6 +407,8 @@ SD_Bool SD_PrintDiff(const SD_Diff *diff) {
                     slice
                 );
             } else {
+                cost += SD_TREE_DELETE_COST;
+
                 const u32 start = diff->op_seq[idx].bytes[0];
                 const u32 end   = diff->op_seq[idx].bytes[1];
                 char slice[end - start + 1];
@@ -415,6 +422,9 @@ SD_Bool SD_PrintDiff(const SD_Diff *diff) {
             }
         }
     }
+
+    printf("Cost of transform: %d\n", cost);
+    printf("Transforms: %llu\n", diff->ops);
 
     return SD_TRUE;
 }
