@@ -1,3 +1,3 @@
-float min(const float a, const float b) {
-    return a < b ? a : b;
+float max(const float x, const float y) {
+    return x > y ? x : y;
 }
