@@ -296,32 +296,30 @@ SD_Bool SD_GetTreeDiff(SD_Diff *diff, const TSNode a, const TSNode b) {
         const TSNode c_a = ts_node_child(a, idx);
         const TSNode c_b = ts_node_child(b, idx);
 
-        const u32 old_ops = diff->ops;
-        SD_GetTreeDiff(diff, c_a, c_b);
-        if (diff->ops > old_ops) {
-            continue;
-        }
+        if (ts_node_child_count(c_a) != 0 || ts_node_child_count(c_b) != 0) {
+            SD_GetTreeDiff(diff, c_a, c_b);
+        } else {
+            const u32 c_a_b0 = ts_node_start_byte(c_a);
+            const u32 c_a_b1 = ts_node_end_byte  (c_a);
+            const u32 c_b_b0 = ts_node_start_byte(c_b);
+            const u32 c_b_b1 = ts_node_end_byte  (c_b);
 
-        const u32 c_a_b0 = ts_node_start_byte(c_a);
-        const u32 c_a_b1 = ts_node_end_byte  (c_a);
-        const u32 c_b_b0 = ts_node_start_byte(c_b);
-        const u32 c_b_b1 = ts_node_end_byte  (c_b);
+            char slice_a[c_a_b1 - c_a_b0 + 1];
+            char slice_b[c_b_b1 - c_b_b0 + 1];
+            strncpy(slice_a, diff->sa + c_a_b0, c_a_b1 - c_a_b0);
+            strncpy(slice_b, diff->sb + c_b_b0, c_b_b1 - c_b_b0);
+            slice_a[c_a_b1 - c_a_b0] = '\0';
+            slice_b[c_b_b1 - c_b_b0] = '\0';
 
-        char slice_a[c_a_b1 - c_a_b0 + 1];
-        char slice_b[c_b_b1 - c_b_b0 + 1];
-        strncpy(slice_a, diff->sa + c_a_b0, c_a_b1 - c_a_b0);
-        strncpy(slice_b, diff->sb + c_b_b0, c_b_b1 - c_b_b0);
-        slice_a[c_a_b1 - c_a_b0] = '\0';
-        slice_b[c_b_b1 - c_b_b0] = '\0';
-
-        if (strcmp(slice_a, slice_b) != 0 && (ts_node_child_count(c_a) == 0 || ts_node_child_count(c_b) == 0)) {
-            diff->op_seq[diff->ops].op       = SD_TREE_RELABEL;
-            diff->op_seq[diff->ops].start    = ts_node_start_point(a);
-            diff->op_seq[diff->ops].bytes[0] = c_a_b0;
-            diff->op_seq[diff->ops].bytes[1] = c_a_b1;
-            diff->op_seq[diff->ops].bytes[2] = c_b_b0;
-            diff->op_seq[diff->ops].bytes[3] = c_b_b1;
-            diff->ops++;
+            if (strcmp(slice_a, slice_b) != 0) {
+                diff->op_seq[diff->ops].op       = SD_TREE_RELABEL;
+                diff->op_seq[diff->ops].start    = ts_node_start_point(a);
+                diff->op_seq[diff->ops].bytes[0] = c_a_b0;
+                diff->op_seq[diff->ops].bytes[1] = c_a_b1;
+                diff->op_seq[diff->ops].bytes[2] = c_b_b0;
+                diff->op_seq[diff->ops].bytes[3] = c_b_b1;
+                diff->ops++;
+            }
         }
     }
 
@@ -373,8 +371,6 @@ SD_Bool SD_PrintDiff(const SD_Diff *diff) {
     u32 cost = 0;
     for (u32 idx = 0; idx < diff->ops; idx++) {
         if (diff->op_seq[idx].op == SD_TREE_RELABEL) {
-            cost += SD_TREE_RELABEL_COST;
-
             const u32 c_a_b0 = diff->op_seq[idx].bytes[0];
             const u32 c_a_b1 = diff->op_seq[idx].bytes[1];
             const u32 c_b_b0 = diff->op_seq[idx].bytes[2];
@@ -387,6 +383,8 @@ SD_Bool SD_PrintDiff(const SD_Diff *diff) {
             slice_a[c_a_b1 - c_a_b0] = '\0';
             slice_b[c_b_b1 - c_b_b0] = '\0';
 
+            cost += SD_TREE_RELABEL_COST * abs((i32) strlen(slice_a) - (i32) strlen(slice_b));
+
             printf(
                 "[%2d:%2d] RELABEL \"%s\", \"%s\"\n",
                 diff->op_seq[idx].start.row, diff->op_seq[idx].start.column,
@@ -394,26 +392,30 @@ SD_Bool SD_PrintDiff(const SD_Diff *diff) {
             );
         } else {
             if (diff->op_seq[idx].op == SD_TREE_INSERT) {
-                cost += SD_TREE_INSERT_COST;
-
                 const u32 start = diff->op_seq[idx].bytes[0];
                 const u32 end   = diff->op_seq[idx].bytes[1];
+
                 char slice[end - start + 1];
                 strncpy(slice, diff->sb + start, end - start);
                 slice[end - start] = '\0';
+
+                cost += SD_TREE_INSERT_COST * strlen(slice);
+
                 printf(
                     "[%2d:%2d] INSERT  \"%s\"\n",
                     diff->op_seq[idx].start.row, diff->op_seq[idx].start.column,
                     slice
                 );
             } else {
-                cost += SD_TREE_DELETE_COST;
-
                 const u32 start = diff->op_seq[idx].bytes[0];
                 const u32 end   = diff->op_seq[idx].bytes[1];
+
                 char slice[end - start + 1];
                 strncpy(slice, diff->sa + start, end - start);
                 slice[end - start] = '\0';
+
+                cost += SD_TREE_DELETE_COST * strlen(slice);
+
                 printf(
                     "[%2d:%2d] DELETE  \"%s\"\n",
                     diff->op_seq[idx].start.row, diff->op_seq[idx].start.column,
