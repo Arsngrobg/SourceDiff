@@ -4,6 +4,6 @@
 [submodule "vendor/easy-args"]
 	path = vendor/easy-args
 	url = https://github.com/gouwsxander/easy-args.git
-[submodule "vendor/tinycc"]
-	path = vendor/tinycc
+[submodule "vendor/tcc"]
+	path = vendor/tcc
 	url = https://github.com/Tiny-C-Compiler/tinycc-mirror-repository.git

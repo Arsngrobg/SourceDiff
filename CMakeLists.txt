@@ -12,6 +12,10 @@ include_directories(
         vendor/tree-sitter/lib/include
         vendor/tree-sitter/lib/src
 )
+# tinycc
+include_directories(
+        vendor/tcc
+)
 
 # globs
 file(GLOB SOURCES src/*.c src/*.h)

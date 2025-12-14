@@ -5,6 +5,7 @@
 #include <windows.h>
 
 #include "tree_sitter/api.h"
+#include "libtcc.h"
 
 // macro constants
 #define SD_NAME          "SourceDiff"        // the string literal of the project name
