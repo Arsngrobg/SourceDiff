@@ -1,26 +1,17 @@
 cmake_minimum_required(VERSION 4.0)
 project(SourceDiff C)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 11 )
+set(CMAKE_SRC_DIR    src)
 
-# easy-args
-include_directories(
-        vendor/easy-args/includes
-)
-# tree-sitter
-include_directories(
-        vendor/tree-sitter/lib/include
-        vendor/tree-sitter/lib/src
-)
-# tinycc
-include_directories(
-        vendor/tcc
+# TCC
+
+# Sources
+file(GLOB SD_SOURCE
+    CONFIGURE_DEPENDS
+    ${CMAKE_SRC_DIR}/*.c
+    ${CMAKE_SRC_DIR}/*.h
 )
 
-# globs
-file(GLOB SOURCES src/*.c src/*.h)
-
-add_executable(SourceDiff
-        vendor/tree-sitter/lib/src/lib.c
-        ${SOURCES}
-)
+# Executable
+add_executable(SourceDiff ${SD_SOURCE})
