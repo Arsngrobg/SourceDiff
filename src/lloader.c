@@ -14,10 +14,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include <stdarg.h>
 #include <stdio.h>
-
-#include "libtcc.h"
 
 #define LANGUAGE_DIRECTORY "languages"
 #define LANGUAGE_CACHE     "languages/.bin"
@@ -46,20 +43,10 @@ bool SD_LoadLanguage   (const char *language_id);
 
 bool SD_CompileLanguage(const char *language_id) {
     if (language_id == NULL) return false;
-
-    // format path string
-    char path[260];
-    if (sprintf(path, LANGUAGE_CACHE"/%s-lang.dll", language_id) == -1) { // TODO: .DLL & .SO support
-        return false;
-    }
-
-    TCCState *cc = tcc_new();
-
-    // TODO: add tree sitter parser (+scanner)
-
-    tcc_set_output_type(cc, TCC_OUTPUT_DLL);
-    tcc_output_file(cc, path);
-
-    tcc_delete(cc);
     return true;
 }
+
+int main(int argc, char* argv[]) {
+    return 0;
+}
+

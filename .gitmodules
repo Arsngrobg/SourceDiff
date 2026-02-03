@@ -1,9 +1,3 @@
-[submodule "vendor/tree-sitter"]
-	path = vendor/tree-sitter
-	url = https://github.com/tree-sitter/tree-sitter.git
-[submodule "vendor/easy-args"]
-	path = vendor/easy-args
-	url = https://github.com/gouwsxander/easy-args.git
-[submodule "vendor/tcc"]
-	path = vendor/tcc
-	url = https://github.com/Tiny-C-Compiler/tinycc-mirror-repository.git
+[submodule "vendor/tinycc"]
+	path = vendor/tinycc
+	url = https://github.com/TinyCC/tinycc.git
