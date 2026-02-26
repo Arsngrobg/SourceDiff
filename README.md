@@ -20,6 +20,5 @@ This makes it particularly useful for:
 
 ## Plug-n-Play
 **SourceDiff** uses the [Tree Sitter](https://tree-sitter.github.io/tree-sitter) API for parsing source code into parse
-trees, and they provide a large database of pre-generated incremental parsers for use in **SourceDiff**.
-This software requires that you have a C compiler installed on your target device, as for the *plug-n-player* behaviour,
-requires parsers to be compiled and linked dynamically in order for them to be used.
+trees, and they provide a large database of officially-supported, pre-compiled incremental parsers. This project also
+embeds the [TinyCC](https://bellard.org/tcc) project for the compilation backend for Tree Sitter parsers.
