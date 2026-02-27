@@ -24,6 +24,19 @@ trees, and they provide a large database of officially-supported, pre-compiled i
 embeds the [TinyCC](https://bellard.org/tcc) project for the compilation backend for Tree Sitter parsers.
 
 ### Extensibility
-If your programming language does not have an officially-recognised Tree Sitter parser, youcan always
+If your programming language does not have an officially-recognised Tree Sitter parser, you can always
 create your own. See the Tree Sitter [documentation](https://tree-sitter.github.io/tree-sitter) for how to
 create your own.
+
+## Building From Source
+To build **SourceDiff** from source, you are required to have *make* installed on your system.
+Invoke the command:
+```bash
+~ > make
+```
+This will produce a `build` directory that will contain all the neccessary binaries to run **SourceDiff**. You can now either:
+setup your `PATH` variable if you intend to properly use this software; or navigate to the `build` directory. After, just invoke
+the executable using the command-line:
+```bash
+~ > ./sd
+```
