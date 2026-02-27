@@ -22,3 +22,8 @@ This makes it particularly useful for:
 **SourceDiff** uses the [Tree Sitter](https://tree-sitter.github.io/tree-sitter) API for parsing source code into parse
 trees, and they provide a large database of officially-supported, pre-compiled incremental parsers. This project also
 embeds the [TinyCC](https://bellard.org/tcc) project for the compilation backend for Tree Sitter parsers.
+
+### Extensibility
+If your programming language does not have an officially-recognised Tree Sitter parser, youcan always
+create your own. See the Tree Sitter [documentation](https://tree-sitter.github.io/tree-sitter) for how to
+create your own.
