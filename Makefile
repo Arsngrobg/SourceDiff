@@ -5,8 +5,8 @@
 #    -  with MSVC, this will need to be handled deliberately
 
 CC       := cc
+CFLAGS   := -Wall -O3 -march=native
 CSTD     := 11
-MODE     := debug
 PROGNAME := sd
 BUILDDIR := build
 
@@ -20,13 +20,6 @@ ROOT      := $(shell pwd)
 TCCVENDOR := vendor/tinycc
 TSVENDOR  := vendor/tree-sitter
 OUT       :=
-endif
-ifeq ($(MODE),release)
-CFLAGS := -Wall -O3 -march=native
-else ifeq ($(MODE),debug)
-CFLAGS := -Wall -g -O0 -DSD_DEBUG
-else
-$(error Unknown MODE: $(MODE))
 endif
 
 SOURCES     := $(wildcard src/*.c)
