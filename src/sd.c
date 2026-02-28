@@ -26,7 +26,7 @@
 #define ERRLOG(fmt, ...)                                                         \
     do {                                                                         \
         fprintf(stderr, "["PROJECT_NAME":%s] "fmt"\n", __func__, ##__VA_ARGS__); \
-    } while (0);
+    } while (0)
 #else
 #define LOG(fmt, ...)
 #define ERRLOG(fmt, ...)
