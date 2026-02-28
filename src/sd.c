@@ -7,6 +7,7 @@
 #include <stdarg.h>
 
 #include "libtcc.h"
+#include "tree_sitter/api.h"
 
 // TODO: make cross-platform
 #ifdef _WIN32
@@ -17,6 +18,7 @@
 
 #ifndef NDEBUG
 #define PROJECT_NAME "SourceDiff"
+#define PROJECT_VERSION #include "../VERSION"
 #define LOG(fmt, ...)                                                   \
     do {                                                                \
         printf("["PROJECT_NAME":%s] "fmt"\n", __func__, ##__VA_ARGS__); \
@@ -29,10 +31,13 @@
 #define LOG(fmt, ...)
 #define ERRLOG(fmt, ...)
 #endif
-#define path(pahf, ...) _path(pahf, ##__VA_ARGS__, NULL)
+#define path(pahf, ...) _path(pahf, ##__VA_ARGS__, NULL) /* Adds the sentinel at the end */
 
 
-/* Gets the language parser directory */
+typedef TSLanguage *(*LanguageFunction)(void);
+
+
+/* Gets the language parser directory - lazily evaluated */
 const char *get_ldir(void) {
     static char dir[MAX_PATH];
     static bool cached = false;
@@ -94,9 +99,40 @@ const char *_path(const char *pahf, ...) {
 #endif
 }
 
+/* Either accepts a plain text string, or a string format and varargs to quickly format a string
+   Will return NULL if failed - not to be used to generate long-life strings
+*/
+// TODO: not the best design, can easily overrun th buffer
+const char *string(const char *fmt, ...) {
+    static char buf[1 << 16];
+
+    assert(fmt != NULL);
+    va_list varargs;
+    va_start(varargs, fmt);
+
+    if (vsnprintf(buf, strlen(fmt), fmt, varargs) < 0) {
+        ERRLOG("Unable to format %s", fmt);
+        return NULL;
+    }
+
+    va_end(varargs);
+    return buf;
+}
+
 /* Compiles the *lid* tree-sitter language parser */
 bool compile_parser(const char *lid) {
     assert(lid != NULL);
+
+    // create language directory if not exists
+    if (!path(get_ldir()) && CreateDirectory(get_ldir(), NULL) != 0) {
+        ERRLOG("Unable to create an empty languages directory - you may have to do it yourself");
+        return false;
+    }
+
+    if (!path(get_ldir(),lid)) {
+        ERRLOG("No language parser available in %s - make sure it is in the correct directory", get_ldir());
+        return false;
+    }
 
     LOG("Initialising compiler backend...");
     TCCState *cc = tcc_new();
@@ -109,6 +145,7 @@ bool compile_parser(const char *lid) {
     const char *pahf;
     if (!(pahf = path(get_ldir(),lid,"tree_sitter"))) {
         ERRLOG("Could not find required tree_sitter include directory in (%s)", path(get_ldir(),lid));
+        tcc_delete(cc);
         return false;
     }
     LOG("Found tree_sitter include directory (%s)", pahf);
@@ -116,6 +153,7 @@ bool compile_parser(const char *lid) {
 
     if (!(pahf = path(get_ldir(),lid,"parser.c"))) {
         ERRLOG("Could not find required parser.c source file in (%s)", path(get_ldir(),lid));
+        tcc_delete(cc);
         return false;
     }
     LOG("Found parser.c source file (%s)", pahf);
@@ -127,8 +165,16 @@ bool compile_parser(const char *lid) {
     }
 
     LOG("Compiling %s language parser...", lid);
-    tcc_relocate(cc);
-    LOG("Searching for tree_sitter_%s parser producer function...", lid);
+    if (tcc_relocate(cc)) {
+        ERRLOG("Unable to compile the %s language parser", lid);
+        tcc_delete(cc);
+        return false;
+    }
+    LOG("Searching for tree_sitter_%s symbol...", lid);
+    const char *id = string("tree_sitter_%s", lid);
+    LanguageFunction fn = tcc_get_symbol(cc, id);
+    TSLanguage *lang = fn();
+
     tcc_delete(cc);
     LOG("Finished!");
 
@@ -136,7 +182,7 @@ bool compile_parser(const char *lid) {
 }
 
 int main(void) {
-    compile_parser("c");
     compile_parser("python");
+    compile_parser("c");
     return 0;
 }

@@ -22,16 +22,15 @@ TSVENDOR  := vendor/tree-sitter
 OUT       :=
 endif
 
-SOURCES     := $(wildcard src/*.c)
-TCCEVILOBJS  = $(wildcard $(BUILDDIR)\[doc|examples|*.def])
+SOURCES   := $(wildcard src/*.c)
 
-all: clean libtcc sdexe licenses
+all: clean libtcc libtree-sitter sourcediff licenses
 
-.SILENT: libtcc sdexe licenses clean run
+.SILENT: libtcc libtree-sitter sourcediff licenses clean run
 
 ifeq ($(OS),Windows_NT)
 libtcc:
-	echo [SourceDiff] Invoking Windows build script for TinyCC
+	echo [SourceDiff] Invoking Windows build script for TinyCC...
 	cd $(TCCVENDOR)\win32 && (build-tcc -i "$(ROOT)\$(BUILDDIR)" && build-tcc -clean) > nul
 	echo ^  ^> [TinyCC] Built TinyCC for Windows
 	echo ^  ^> [TinyCC] Removing unnecessary objects...
@@ -43,9 +42,19 @@ libtcc:
 	move $(BUILDDIR)\libtcc.dll $(BUILDDIR) > nul
 	echo ^  ^> [TinyCC] Finished!
 
-sdexe:
+libtree-sitter:
+	echo [SourceDiff] Building Tree Sitter shared library...
+	$(MAKE) -C $(TSVENDOR) shared > nul
+	echo ^  ^> [Tree-Sitter] Built Tree-Sitter for Windows
+	echo ^  ^> [Tree-Sitter] Moving output files...
+	(move $(TSVENDOR)\libtree-sitter.dll $(BUILDDIR) & del /Q $(TSVENDOR)\libtree-sitter.dll.a)> nul
+	echo ^  ^> [Tree-Sitter] Moving headers...
+	robocopy /E $(TSVENDOR)\lib\include include > nul || exit 0
+	echo ^  ^> [Tree-Sitter] Finished!
+
+sourcediff:
 	echo [SourceDiff] Building sources...
-	$(CC) $(CFLAGS) --std=c$(CSTD) -Iinclude\libtcc $(BUILDDIR)\libtcc.dll $(SOURCES) -o $(BUILDDIR)\$(PROGNAME)$(OUT)
+	$(CC) $(CFLAGS) --std=c$(CSTD) -Iinclude -Iinclude\libtcc $(BUILDDIR)\libtcc.dll $(BUILDDIR)\libtree-sitter.dll $(SOURCES) -o $(BUILDDIR)\$(PROGNAME)$(OUT)
 	echo ^  ^> [SourceDiff] Finished!
 
 licenses:
