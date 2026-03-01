@@ -7,7 +7,7 @@
 CC       := cc
 CFLAGS   := -Wall -O3 -march=native
 CSTD     := 11
-PROGNAME := sd
+PROGNAME := srcdiff
 BUILDDIR := build
 
 ifeq ($(OS),Windows_NT)
@@ -24,9 +24,9 @@ endif
 
 SOURCES   := $(wildcard src/*.c)
 
-all: clean libtcc libtree-sitter sourcediff licenses
+all: clean libtcc libtree-sitter srcdiff licenses
 
-.SILENT: libtcc libtree-sitter sourcediff licenses clean run
+.SILENT: libtcc libtree-sitter srcdiff licenses clean run
 
 ifeq ($(OS),Windows_NT)
 libtcc:
@@ -52,7 +52,7 @@ libtree-sitter:
 	robocopy /E $(TSVENDOR)\lib\include include > nul || exit 0
 	echo ^  ^> [Tree-Sitter] Finished!
 
-sourcediff:
+srcdiff:
 	echo [SourceDiff] Building sources...
 	$(CC) $(CFLAGS) --std=c$(CSTD) -Iinclude -Iinclude\libtcc $(BUILDDIR)\libtcc.dll $(BUILDDIR)\libtree-sitter.dll $(SOURCES) -o $(BUILDDIR)\$(PROGNAME)$(OUT)
 	echo ^  ^> [SourceDiff] Finished!

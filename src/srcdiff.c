@@ -102,7 +102,7 @@ const char *_path(const char *pahf, ...) {
 /* Either accepts a plain text string, or a string format and varargs to quickly format a string
    Will return NULL if failed - not to be used to generate long-life strings
 */
-// TODO: not the best design, can easily overrun th buffer
+// TODO: not the best design, can easily overrun the buffer
 const char *string(const char *fmt, ...) {
     static char buf[1 << 16];
 
@@ -119,8 +119,8 @@ const char *string(const char *fmt, ...) {
     return buf;
 }
 
-/* Compiles the *lid* tree-sitter language parser */
-bool compile_parser(const char *lid) {
+/* Compiles and loads the *lid* tree-sitter language parser */
+bool load_parser(const char *lid) {
     assert(lid != NULL);
 
     // create language directory if not exists
@@ -182,7 +182,7 @@ bool compile_parser(const char *lid) {
 }
 
 int main(void) {
-    compile_parser("python");
-    compile_parser("c");
+    load_parser("python");
+    load_parser("c");
     return 0;
 }

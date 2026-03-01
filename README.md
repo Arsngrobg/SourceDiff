@@ -38,5 +38,5 @@ This will produce a `build` directory that will contain all the neccessary binar
 setup your `PATH` variable if you intend to properly use this software; or navigate to the `build` directory. After, just invoke
 the executable using the command-line:
 ```bash
-~ > ./sd
+~ > ./srcdiff
 ```
