@@ -10,6 +10,8 @@ CSTD     := 11
 PROGNAME := srcdiff
 BUILDDIR := build
 
+# CFLAGS += -DNDEBUG
+
 ifeq ($(OS),Windows_NT)
 ROOT      := $(shell cd)
 TCCVENDOR := vendor\tinycc
@@ -22,7 +24,7 @@ TSVENDOR  := vendor/tree-sitter
 OUT       :=
 endif
 
-SOURCES   := $(wildcard src/*.c)
+SOURCES   := $(wildcard src/*.c) $(wildcard src/commons/*.c)
 
 all: clean libtcc libtree-sitter srcdiff licenses
 
@@ -54,7 +56,7 @@ libtree-sitter:
 
 srcdiff:
 	echo [SourceDiff] Building sources...
-	$(CC) $(CFLAGS) --std=c$(CSTD) -Iinclude -Iinclude\libtcc $(BUILDDIR)\libtcc.dll $(BUILDDIR)\libtree-sitter.dll $(SOURCES) -o $(BUILDDIR)\$(PROGNAME)$(OUT)
+	$(CC) $(CFLAGS) --std=c$(CSTD) -I src/commons -Iinclude -Iinclude\libtcc $(BUILDDIR)\libtcc.dll $(BUILDDIR)\libtree-sitter.dll $(SOURCES) -o $(BUILDDIR)\$(PROGNAME)$(OUT)
 	echo ^  ^> [SourceDiff] Finished!
 
 licenses:
