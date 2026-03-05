@@ -87,3 +87,8 @@ void sdalloc_free(sdmemory_t *mem, void *ptr) {
         offset += sizeof(sdmemory_block_t) + block->size;
     }
 }
+
+void sdalloc_delete(sdmemory_t *mem) {
+    assert(mem != NULL);
+    free(mem);
+}
