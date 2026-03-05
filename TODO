@@ -1,6 +1,2 @@
-[ ] - Cache compiled languages (.bin)
-[ ] - Configuration file (.yaml)
-[ ] - Counted strings (simulate strcmp and all that with memcmp)
-[ ] - Arena allocators
-[ ] - Robust path handling
-[ ] - Support for multiple languages at once
+- sdalloc.c
+    | | - [43]: engulf adjacent free blocks if possible
