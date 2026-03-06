@@ -41,6 +41,28 @@ void *sdalloc_malloc(sdmemory_t *mem, uint64_t size) {
     while (offset != mem->size) {
         sdmemory_block_t *block = (sdmemory_block_t*) (mem->bytes + offset);
         // TODO: engulf adjacent free blocks if possible
+        if (block->free && block->size < size) {
+            uint64_t _offset   = offset + (sizeof(sdmemory_block_t) + block->size);
+            uint64_t accumsize = block->size; // no header as we are going to be using it
+            while (_offset != mem->size && _block->free) {
+                sdmemory_block_t *_block = (sdmemory_block_t*) (mem->bytes + _offset);
+
+                uint64_t true_size = sizeof(sdmemory_block_t) + _block->size;
+                accumsize += true_size;
+                _offset   += true_size;
+            }
+
+            uint64_t _offset    = offset;
+            uint64_T accum_size = block->size;
+
+            sdmemory_block_t *_block;
+            do {
+                _block = (sdmemory_block_t*) (mem->bytes + _offset);
+            } while ();
+
+            block->size = accumsize;
+        }
+
         if (block->free && block->size >= size) {
             DLOG("Available free block of %lld bytes", block->size);
 

@@ -25,7 +25,7 @@ embeds the [TinyCC](https://bellard.org/tcc) project for the compilation backend
 
 ### Extensibility
 If your programming language does not have an officially-recognised Tree Sitter parser, you can always
-create your own. See the Tree Sitter [documentation](https://tree-sitter.github.io/tree-sitter) for how to
+create your own. See the Tree Sitter [documentation](https://tree-sitter.github.io/tree-sitter/creating-parsers/index.html) for how to
 create your own.
 
 ## Building From Source
