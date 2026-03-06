@@ -15,7 +15,7 @@
 #define LOG(fmt, ...) \
     printf("[SourceDiff] "fmt"\n", ##__VA_ARGS__)
 #define ERRLOG(fmt, ...) \
-        fprintf(stderr, "[SourceDiff] "fmt"\n", ##__VA_ARGS__)
+    fprintf(stderr, "[SourceDiff] "fmt"\n", ##__VA_ARGS__)
 
 // sdalloc.c
 #define KiB(n) ((uint64_t)(n) << 10)

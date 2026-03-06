@@ -18,6 +18,7 @@ sdmemory_t* sdalloc_create(uint64_t size) {
         ERRLOG("Unable to allocate %lld bytes for the memory zone", MINSIZE + aligned);
         return NULL;
     }
+    DLOG("Allocated %lld total bytes for sdmemory_t", MINSIZE + aligned);
 
     zone->size = sizeof(sdmemory_block_t) + aligned;
 
@@ -42,29 +43,19 @@ void *sdalloc_malloc(sdmemory_t *mem, uint64_t size) {
         sdmemory_block_t *block = (sdmemory_block_t*) (mem->bytes + offset);
         // TODO: engulf adjacent free blocks if possible
         if (block->free && block->size < size) {
-            uint64_t _offset   = offset + (sizeof(sdmemory_block_t) + block->size);
-            uint64_t accumsize = block->size; // no header as we are going to be using it
-            while (_offset != mem->size && _block->free) {
-                sdmemory_block_t *_block = (sdmemory_block_t*) (mem->bytes + _offset);
-
-                uint64_t true_size = sizeof(sdmemory_block_t) + _block->size;
-                accumsize += true_size;
-                _offset   += true_size;
-            }
-
-            uint64_t _offset    = offset;
-            uint64_T accum_size = block->size;
+            DLOG("Attempting to engulf free adjacent, smaller blocks...");
 
             sdmemory_block_t *_block;
             do {
-                _block = (sdmemory_block_t*) (mem->bytes + _offset);
-            } while ();
-
-            block->size = accumsize;
+                _block = (sdmemory_block_t*) (mem->bytes + offset);
+                block->size += sizeof(sdmemory_block_t) + _block->size;
+                offset      += sizeof(sdmemory_block_t) + _block->size;
+            } while (offset != mem->size);
+            offset -= sizeof(sdmemory_block_t) + block->size;
         }
 
         if (block->free && block->size >= size) {
-            DLOG("Available free block of %lld bytes", block->size);
+            DLOG("Found available free block of %lld bytes", block->size);
 
             if (size < block->size) {
                 DLOG("Requested size (%lld) is smaller than the block - dividing...", size);
@@ -76,7 +67,7 @@ void *sdalloc_malloc(sdmemory_t *mem, uint64_t size) {
                     new_block->free = true;
                 }
 
-                DLOG("New tail memory block of size: %lld", sizeof(sdmemory_block_t) + new_block->size);
+                DLOG("New tail memory block of size: %lld", new_block->size);
 
                 block->size = size;
             }
@@ -112,5 +103,6 @@ void sdalloc_free(sdmemory_t *mem, void *ptr) {
 
 void sdalloc_delete(sdmemory_t *mem) {
     assert(mem != NULL);
+    DLOG("Freed sdmemory_t occupying %lld bytes", sizeof(sdmemory_t) + mem->size);
     free(mem);
 }
