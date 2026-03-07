@@ -41,18 +41,6 @@ void *sdalloc_malloc(sdmemory_t *mem, uint64_t size) {
     uint64_t offset = 0;
     while (offset != mem->size) {
         sdmemory_block_t *block = (sdmemory_block_t*) (mem->bytes + offset);
-        // TODO: engulf adjacent free blocks if possible
-        if (block->free && block->size < size) {
-            DLOG("Attempting to engulf free adjacent, smaller blocks...");
-
-            sdmemory_block_t *_block;
-            do {
-                _block = (sdmemory_block_t*) (mem->bytes + offset);
-                block->size += sizeof(sdmemory_block_t) + _block->size;
-                offset      += sizeof(sdmemory_block_t) + _block->size;
-            } while (offset != mem->size);
-            offset -= sizeof(sdmemory_block_t) + block->size;
-        }
 
         if (block->free && block->size >= size) {
             DLOG("Found available free block of %lld bytes", block->size);
@@ -68,7 +56,6 @@ void *sdalloc_malloc(sdmemory_t *mem, uint64_t size) {
                 }
 
                 DLOG("New tail memory block of size: %lld", new_block->size);
-
                 block->size = size;
             }
 
@@ -94,6 +81,16 @@ void sdalloc_free(sdmemory_t *mem, void *ptr) {
         if (ptr == block->user) {
             DLOG("Found address in memory zone - freeing...");
             block->free = true;
+
+            while (offset != mem->size) {
+                DLOG("Attempting to defragment local blocks...");
+                offset += sizeof(sdmemory_block_t) + block->size;
+                sdmemory_block_t *_block = (sdmemory_block_t*) (mem->bytes + offset);
+                if (!_block->free) break;
+                DLOG("Defragmented %lld bytes", sizeof(sdmemory_block_t) + _block->size);
+                block->size += sizeof(sdmemory_block_t) + _block->size;
+            }
+
             break;
         }
 

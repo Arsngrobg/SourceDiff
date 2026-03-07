@@ -4,7 +4,7 @@
 int main(void) {
     // sdalloc.c
     sdmemory_t *zone;
-    if (!(zone = sdalloc_create(MiB(4)))) {
+    if (!(zone = sdalloc_create(64))) {
         return -1;
     }
 
