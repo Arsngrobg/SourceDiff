@@ -17,29 +17,41 @@
 #define ERRLOG(fmt, ...) \
     fprintf(stderr, "[SourceDiff] "fmt"\n", ##__VA_ARGS__)
 
+// types
+typedef uint64_t u64;
+typedef uint32_t u32;
+typedef uint16_t u16;
+typedef uint8_t  u8;
+typedef int64_t  i64;
+typedef int32_t  i32;
+typedef int16_t  i16;
+typedef int8_t   i8;
+typedef double   f64;
+typedef float    f32;
+
 // sdalloc.c
-#define KiB(n) ((uint64_t)(n) << 10)
-#define MiB(n) ((uint64_t)(n) << 20)
-#define GiB(n) ((uint64_t)(n) << 30)
+#define KiB(n) ((u64)(n) << 10)
+#define MiB(n) ((u64)(n) << 20)
+#define GiB(n) ((u64)(n) << 30)
 
 typedef struct {
-    bool     free;
-    uint64_t size;
-    uint8_t  user[];
-} sdmemory_block_t;
+    bool free;
+    u64  size;
+    u8   user[];
+} sdallocated_t;
 
 typedef struct {
-    uint64_t size;
-    uint8_t  bytes[]; // mapped to sdmemory_block_t
-} sdmemory_t;
+    u64 size;
+    u8  bytes[]; // mapped to sdallocated_t
+} sdallocator_t;
 
-extern sdmemory_t *sdalloc_create(uint64_t size);
-extern void       *sdalloc_malloc(sdmemory_t *mem, uint64_t size);
-extern void        sdalloc_free  (sdmemory_t *mem, void *ptr);
-extern void        sdalloc_delete(sdmemory_t *mem);
+extern sdallocator_t *sdalloc_create(uint64_t size);
+extern void          *sdalloc_malloc(sdallocator_t *aloc, uint64_t size);
+extern void           sdalloc_free  (sdallocator_t *aloc, void *ptr);
+extern void           sdalloc_delete(sdallocator_t *aloc);
 
-// sdfiles.c
-extern const char *sdfiles_lpath(void);
-extern const char *sdfiles_pathj(sdmemory_t *mem, const char *pahf, ...);
+// sdfile.c
+extern const char *sdfiles_fmt   (char *buf, const char *fmt, ...);
+extern bool        sdfiles_exists(char *buf, const char *pahf, ...);
 
 #endif // SRCDIFF_COMMONS_H_
