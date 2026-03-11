@@ -29,7 +29,8 @@ create your own. See the Tree Sitter [documentation](https://tree-sitter.github.
 create your own.
 
 ## Building From Source
-To build **SourceDiff** from source, you are required to have *make* installed on your system.
+To build **SourceDiff** from source, you are required to have *make* installed on your system. This makes it really to compile
+**SourceDiff** onto your system:
 Invoke the command:
 ```bash
 ~ > make
@@ -38,5 +39,7 @@ This will produce a `build` directory that will contain all the neccessary binar
 setup your `PATH` variable if you intend to properly use this software; or navigate to the `build` directory. After, just invoke
 the executable using the command-line:
 ```bash
-~ > ./srcdiff
+~ > ./srcdiff codebase1 codebase2
 ```
+Where `codebase1` and `codebase2` are two directories or two files to compare. This is the simplest invokation method of **SourceDiff**
+through the command line.
