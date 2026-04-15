@@ -1,6 +1,3 @@
-[submodule "vendor/tinycc"]
-	path = vendor/tinycc
-	url = https://github.com/TinyCC/tinycc.git
 [submodule "vendor/tree-sitter"]
 	path = vendor/tree-sitter
 	url = https://github.com/tree-sitter/tree-sitter.git

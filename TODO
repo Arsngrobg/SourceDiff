@@ -1,2 +1,0 @@
-- sdalloc.c
-    |X| - [43]: engulf adjacent free blocks if possible
