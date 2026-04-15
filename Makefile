@@ -1,84 +1,96 @@
-# The MakeFile for SourceDiff
-# TODO: add official unix support
-# TODO: catch errors from robocopy - currently hiding any errors
-# TODO: currently using direct linking (with MinGW) to use libtcc
-#    -  with MSVC, this will need to be handled deliberately
+#
+#     ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄   ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄
+#    ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
+#    ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀█░▌▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀█░▌ ▀▀▀▀█░█▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀
+#    ▐░▌          ▐░▌       ▐░▌▐░▌          ▐░▌       ▐░▌     ▐░▌     ▐░▌          ▐░▌
+#    ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄█░▌▐░▌          ▐░▌       ▐░▌     ▐░▌     ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄▄▄
+#    ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌          ▐░▌       ▐░▌     ▐░▌     ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
+#     ▀▀▀▀▀▀▀▀▀█░▌▐░█▀▀▀▀█░█▀▀ ▐░▌          ▐░▌       ▐░▌     ▐░▌     ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀
+#              ▐░▌▐░▌     ▐░▌  ▐░▌          ▐░▌       ▐░▌     ▐░▌     ▐░▌          ▐░▌
+#     ▄▄▄▄▄▄▄▄▄█░▌▐░▌      ▐░▌ ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄█░▌ ▄▄▄▄█░█▄▄▄▄ ▐░▌          ▐░▌
+#    ▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░▌          ▐░▌
+#    ▀▀▀▀▀▀▀▀▀▀▀  ▀         ▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀   ▀▀▀▀▀▀▀▀▀▀▀  ▀            ▀
+#
+#    the MakeFile for SourceDiff
 
-CC       := cc
-CFLAGS   := -Wall -O3 -march=native
-CSTD     := 11
-PROGNAME := srcdiff
-BUILDDIR := build
+# PROJECT
+NAME       := srcdiff
+VERSION    := $(shell type .\VERSION)
 
-# CFLAGS += -DNDEBUG
+# COMPILATION
+CC         := cc
+CSTD       := 11
+CCFLAGS    := -g -O2 -Wall -Wextra -Wpedantic
+CCDEFS     := -DSD_VERSION="$(VERSION)" -DNDEBUG
+override CCFLAGS := -std=c$(CSTD) $(CCFLAGS)
 
-ifeq ($(OS),Windows_NT)
-ROOT      := $(shell cd)
-TCCVENDOR := vendor\tinycc
-TSVENDOR  := vendor\tree-sitter
-OUT       := .exe
-else
-ROOT      := $(shell pwd)
-TCCVENDOR := vendor/tinycc
-TSVENDOR  := vendor/tree-sitter
-OUT       :=
-endif
+# BUILD SYSTEM
+BUILDROOT  ?= build
+INCROOT    := include
+OBJROOT    := $(BUILDROOT)/obj
+LIBROOT    := $(BUILDROOT)/lib
+BINROOT    := $(BUILDROOT)/bin
+SDSRC      := $(wildcard src/*.c)
+SDOBJ      := $(addprefix $(OBJROOT)/,$(notdir $(SDSRC:.c=.o)))
 
-SOURCES   := $(wildcard src/*.c) $(wildcard src/commons/*.c)
+# VENDORED LIBRARIES
+VENDOROOT  := vendor
+TREESITTER := $(VENDOROOT)/tree-sitter
 
-all: clean libtcc libtree-sitter srcdiff licenses
+# VENDORING TREE-SITTER
+TSCCFLAGS  := -I$(TREESITTER)/lib/src/ -I$(TREESITTER)/lib/include/
+TSSRC      := $(filter-out lib.c wasm_store.c,$(notdir $(wildcard $(TREESITTER)/lib/src/*.c)))
+TSOBJ      := $(addprefix $(OBJROOT)/$(notdir $(TREESITTER))/,$(TSSRC:.c=.o))
 
-.SILENT: libtcc libtree-sitter srcdiff licenses clean run
+# SEARCH PATHS
+VPATH      := src $(TREESITTER)/lib/src
 
-ifeq ($(OS),Windows_NT)
-libtcc:
-	echo [SourceDiff] Invoking Windows build script for TinyCC...
-	cd $(TCCVENDOR)\win32 && (build-tcc -i "$(ROOT)\$(BUILDDIR)" && build-tcc -clean) > nul
-	echo ^  ^> [TinyCC] Built TinyCC for Windows
-	echo ^  ^> [TinyCC] Removing unnecessary objects...
-	cd $(BUILDDIR) && (rd /Q /S doc & rd /Q /S examples & del /Q tcc.exe & del /Q /S *.def) > nul
+# EXECUTABLES
+$(BINROOT)/$(NAME).exe: $(LIBROOT)/lib$(NAME).a $(LIBROOT)/libtreesitter.a | $(BINROOT)/
+	$(CC) $^ -o $@
 
-	echo ^  ^> [TinyCC] Moving libraries...
-	if not exist include (mkdir include)
-	move $(BUILDDIR)\libtcc include\libtcc > nul
-	move $(BUILDDIR)\libtcc.dll $(BUILDDIR) > nul
-	echo ^  ^> [TinyCC] Finished!
+# LIBRARIES
+$(LIBROOT)/lib$(NAME).a: $(SDOBJ) | $(LIBROOT)/
+	ar rcs $@ $^
+$(LIBROOT)/libtreesitter.a: $(TSOBJ) | $(LIBROOT)/
+	ar rcs $@ $^
 
-libtree-sitter:
-	echo [SourceDiff] Building Tree Sitter shared library...
-	$(MAKE) -C $(TSVENDOR) shared > nul
-	echo ^  ^> [Tree-Sitter] Built Tree-Sitter for Windows
-	echo ^  ^> [Tree-Sitter] Moving output files...
-	(move $(TSVENDOR)\libtree-sitter.dll $(BUILDDIR) & del /Q $(TSVENDOR)\libtree-sitter.dll.a)> nul
-	echo ^  ^> [Tree-Sitter] Moving headers...
-	robocopy /E $(TSVENDOR)\lib\include include > nul || exit 0
-	echo ^  ^> [Tree-Sitter] Finished!
+# SOURCES
+$(OBJROOT)/tree-sitter/%.o: %.c | $(OBJROOT)/tree-sitter/
+	$(CC) $(CCFLAGS) $(TSCCFLAGS) $(CCDEFS) -c $< -o $@
+$(OBJROOT)/%.o: %.c $(INCROOT)/tree-sitter.h | $(OBJROOT)/
+	$(CC) $(CCFLAGS) -I$(INCROOT) $(CCDEFS) -c $< -o $@
 
-srcdiff:
-	echo [SourceDiff] Building sources...
-	$(CC) $(CFLAGS) --std=c$(CSTD) -I src/commons -Iinclude -Iinclude\libtcc $(BUILDDIR)\libtcc.dll $(BUILDDIR)\libtree-sitter.dll $(SOURCES) -o $(BUILDDIR)\$(PROGNAME)$(OUT)
-	echo ^  ^> [SourceDiff] Finished!
+# INCLUDES
+$(INCROOT)/tree-sitter.h: $(TREESITTER)/lib/include/tree_sitter/api.h | $(INCROOT)/
+	copy $(subst /,\,$<) $(subst /,\,$@) > nul
 
-licenses:
-	echo [SourceDiff] Copying licenses to $(BUILDDIR)...
-	if not exist $(BUILDDIR)\licenses mkdir $(BUILDDIR)\licenses
+%/:
+	if not exist $(subst /,\,$@) mkdir $(subst /,\,$@)
 
-	echo ^  ^> [SourceDiff] Copying SourceDiff license...
-	copy /y LICENSE $(BUILDDIR)\licenses\SourceDiff.txt > nul
+# TASKS
+all:        \
+	clean   \
+	compile
 
-	echo ^  ^> [SourceDiff] Copying TinyCC license...
-	copy /y $(TCCVENDOR)\COPYING $(BUILDDIR)\licenses\TinyCC.txt > nul
+run: compile
+	@cls
+	@$(BINROOT)/$(NAME).exe
 
-	echo ^  ^> [SourceDiff] Copying Tree Sitter license...
-	copy /y $(TSVENDOR)\LICENSE $(BUILDDIR)\licenses\Tree-Sitter.txt > nul
+compile:                  \
+	dependencies          \
+	minimal               \
+	$(BINROOT)/$(NAME).exe
 
-	echo ^  ^> [SourceDiff] Finished!
+minimal:                     \
+	$(INCROOT)/tree-sitter.h
+
+dependencies:                  \
+	$(LIBROOT)/libtreesitter.a
 
 clean:
-	echo [SourceDiff] Reverting repo to initial state...
-	if exist $(BUILDDIR) (echo ^  ^> [SourceDiff] Removing $(BUILDDIR) directory... & rd /Q /S $(BUILDDIR) > nul)
-	if exist include (echo ^  ^> [SourceDiff] Removing include directory... & rd /Q /S include > nul)
-	echo ^  ^> [SourceDiff] Finished!
-else
-$(error SourceDiff does not currently support Unix systems)
-endif
+	@if exist $(subst /,\,$(BUILDROOT)) rmdir /s /q $(subst /,\,$(BUILDROOT))
+	@if exist $(INCROOT) rmdir /s /q $(INCROOT)
+
+.PHONY: all run compile minimal dependencies clean
+.DEFAULT_GOAL := all
