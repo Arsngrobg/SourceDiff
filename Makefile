@@ -30,12 +30,14 @@ INCROOT    := include
 OBJROOT    := $(BUILDROOT)/obj
 LIBROOT    := $(BUILDROOT)/lib
 BINROOT    := $(BUILDROOT)/bin
+PKGROOT    := $(BUILDROOT)/pkg
 SDSRC      := $(wildcard src/*.c)
 SDOBJ      := $(addprefix $(OBJROOT)/,$(notdir $(SDSRC:.c=.o)))
 
 # VENDORED LIBRARIES
 VENDOROOT  := vendor
 TREESITTER := $(VENDOROOT)/tree-sitter
+LIBCC      := $(VENDOROOT)/libcc
 
 # VENDORING TREE-SITTER
 TSCCFLAGS  := -I$(TREESITTER)/lib/src/ -I$(TREESITTER)/lib/include/
@@ -64,33 +66,34 @@ $(OBJROOT)/%.o: %.c $(INCROOT)/tree-sitter.h | $(OBJROOT)/
 # INCLUDES
 $(INCROOT)/tree-sitter.h: $(TREESITTER)/lib/include/tree_sitter/api.h | $(INCROOT)/
 	copy $(subst /,\,$<) $(subst /,\,$@) > nul
+$(INCROOT)/libcc.h: $(LIBCC)/libcc.h | $(INCROOT)/
+	copy $(subst /,\,$<) $(subst /,\,$@) > nul
 
 %/:
 	if not exist $(subst /,\,$@) mkdir $(subst /,\,$@)
 
 # TASKS
-all:        \
-	clean   \
-	compile
+all: pkg
+
+pkg: compile | $(PKGROOT)/licenses/
+	copy $(subst /,\,$(BINROOT)/$(NAME).exe) $(subst /,\,$(PKGROOT)/$(NAME).exe) > nul
+	copy LICENSE $(subst /,\,$(PKGROOT)/licenses/SourceDiff.txt) > nul
+	copy $(subst /,\,$(TREESITTER)/LICENSE) $(subst /,\,$(PKGROOT)/licenses/TreeSitter.txt) > nul
+	copy $(subst /,\,$(LIBCC)/LICENSE) $(subst /,\,$(PKGROOT)/licenses/LibCC.txt) > nul
 
 run: compile
 	@cls
 	@$(BINROOT)/$(NAME).exe
 
-compile:                  \
-	dependencies          \
-	minimal               \
-	$(BINROOT)/$(NAME).exe
+compile: deps min $(BINROOT)/$(NAME).exe
 
-minimal:                     \
-	$(INCROOT)/tree-sitter.h
+min: $(INCROOT)/tree-sitter.h $(INCROOT)/libcc.h
 
-dependencies:                  \
-	$(LIBROOT)/libtreesitter.a
+deps: $(LIBROOT)/libtreesitter.a
 
 clean:
-	@if exist $(subst /,\,$(BUILDROOT)) rmdir /s /q $(subst /,\,$(BUILDROOT))
-	@if exist $(INCROOT) rmdir /s /q $(INCROOT)
+	if exist $(subst /,\,$(BUILDROOT)) rmdir /q $(subst /,\,$(BUILDROOT)) > nul
+	if exist $(INCROOT) rmdir /q $(INCROOT) > nul
 
-.PHONY: all run compile minimal dependencies clean
+.PHONY: all pkg run compile min deps clean
 .DEFAULT_GOAL := all
