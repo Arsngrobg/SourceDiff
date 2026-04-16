@@ -1,15 +1,8 @@
 # Build System Artifacts
-build/
-include/
+/build
 
 # Compilation Artifacts
 *.o
-*.lib
 *.a
-*.la
-*.lo
 *.dll
-*.so
-*.so.*
-*.dylib
 *.exe

@@ -1,4 +1,4 @@
-#
+
 #     ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄   ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄
 #    ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
 #    ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀█░▌▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀█░▌ ▀▀▀▀█░█▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀
@@ -9,91 +9,124 @@
 #              ▐░▌▐░▌     ▐░▌  ▐░▌          ▐░▌       ▐░▌     ▐░▌     ▐░▌          ▐░▌
 #     ▄▄▄▄▄▄▄▄▄█░▌▐░▌      ▐░▌ ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄▄▄█░▌ ▄▄▄▄█░█▄▄▄▄ ▐░▌          ▐░▌
 #    ▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░▌          ▐░▌
-#    ▀▀▀▀▀▀▀▀▀▀▀  ▀         ▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀   ▀▀▀▀▀▀▀▀▀▀▀  ▀            ▀
+#     ▀▀▀▀▀▀▀▀▀▀▀  ▀         ▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀   ▀▀▀▀▀▀▀▀▀▀▀  ▀            ▀
 #
 #    the MakeFile for SourceDiff
 
 # PROJECT
-NAME       := srcdiff
-VERSION    := $(shell type .\VERSION)
+NAME        := srcdiff
+VERSION     := $(strip $(shell type .\VERSION))
+DESCRIPTION := A tool for analysing codebases using parse trees
 
-# COMPILATION
-CC         := cc
-CSTD       := 11
-CCFLAGS    := -g -O2 -Wall -Wextra -Wpedantic
-CCDEFS     := -DSD_VERSION="$(VERSION)" -DNDEBUG
+# GLOBAL COMPILATION CONFIGURATION
+CC          := cc
+CSTD        := 11
+CCFLAGS     := -O2 -Wall -Wextra -Wpedantic
+CCDEFS      := -DNDEBUG
 override CCFLAGS := -std=c$(CSTD) $(CCFLAGS)
 
 # BUILD SYSTEM
-BUILDROOT  ?= build
-INCROOT    := include
-OBJROOT    := $(BUILDROOT)/obj
-LIBROOT    := $(BUILDROOT)/lib
-BINROOT    := $(BUILDROOT)/bin
-PKGROOT    := $(BUILDROOT)/pkg
-SDSRC      := $(wildcard src/*.c)
-SDOBJ      := $(addprefix $(OBJROOT)/,$(notdir $(SDSRC:.c=.o)))
+BUILDROOT   ?= build
+OBJROOT     := $(BUILDROOT)/obj
+LIBROOT     := $(BUILDROOT)/lib
+BINROOT     := $(BUILDROOT)/bin
+PKGROOT     ?= $(BUILDROOT)/pkg
 
-# VENDORED LIBRARIES
-VENDOROOT  := vendor
-TREESITTER := $(VENDOROOT)/tree-sitter
-LIBCC      := $(VENDOROOT)/libcc
+# SHELL UTILITIES
+CP          := copy > nul
 
-# VENDORING TREE-SITTER
-TSCCFLAGS  := -I$(TREESITTER)/lib/src/ -I$(TREESITTER)/lib/include/
-TSSRC      := $(filter-out lib.c wasm_store.c,$(notdir $(wildcard $(TREESITTER)/lib/src/*.c)))
-TSOBJ      := $(addprefix $(OBJROOT)/$(notdir $(TREESITTER))/,$(TSSRC:.c=.o))
-
-# SEARCH PATHS
-VPATH      := src $(TREESITTER)/lib/src
-
-# EXECUTABLES
-$(BINROOT)/$(NAME).exe: $(LIBROOT)/lib$(NAME).a $(LIBROOT)/libtreesitter.a | $(BINROOT)/
-	$(CC) $^ -o $@
-
-# LIBRARIES
-$(LIBROOT)/lib$(NAME).a: $(SDOBJ) | $(LIBROOT)/
-	ar rcs $@ $^
-$(LIBROOT)/libtreesitter.a: $(TSOBJ) | $(LIBROOT)/
-	ar rcs $@ $^
-
-# SOURCES
-$(OBJROOT)/tree-sitter/%.o: %.c | $(OBJROOT)/tree-sitter/
-	$(CC) $(CCFLAGS) $(TSCCFLAGS) $(CCDEFS) -c $< -o $@
-$(OBJROOT)/%.o: %.c $(INCROOT)/tree-sitter.h | $(OBJROOT)/
-	$(CC) $(CCFLAGS) -I$(INCROOT) $(CCDEFS) -c $< -o $@
-
-# INCLUDES
-$(INCROOT)/tree-sitter.h: $(TREESITTER)/lib/include/tree_sitter/api.h | $(INCROOT)/
-	copy $(subst /,\,$<) $(subst /,\,$@) > nul
-$(INCROOT)/libcc.h: $(LIBCC)/libcc.h | $(INCROOT)/
-	copy $(subst /,\,$<) $(subst /,\,$@) > nul
-
+# GLOBAL DIRECTORY RECIPE
 %/:
-	if not exist $(subst /,\,$@) mkdir $(subst /,\,$@)
+	@if not exist $(subst /,\,$@) echo [Make] Creating new directory $(subst /,\,\$(patsubst %/,%,$@))
+	@if not exist $(subst /,\,$@) mkdir $(subst /,\,$@)
 
-# TASKS
-all: pkg
+#     ,────────.                          ,───.  ,──.  ,──.    ,──.
+#     '──.  .──',──.──. ,───.  ,───.     '   .─' `──',─'  '─.,─'  '─. ,───. ,──.──.
+#        │  │   │  .──'│ .─. :│ .─. :    `.  `─. ,──.'─.  .─''─.  .─'│ .─. :│  .──'
+#        │  │   │  │   ╲   ──.╲   ──.    .─'    ││  │  │  │    │  │  ╲   ──.│  │
+#        `──'   `──'    `────' `────'    `─────' `──'  `──'    `──'   `────'`──'
+#     Copyright (c) 2018 Max Brunsfeld
+#     Custom build by James Armstrong
 
-pkg: compile | $(PKGROOT)/licenses/
-	copy $(subst /,\,$(BINROOT)/$(NAME).exe) $(subst /,\,$(PKGROOT)/$(NAME).exe) > nul
-	copy LICENSE $(subst /,\,$(PKGROOT)/licenses/SourceDiff.txt) > nul
-	copy $(subst /,\,$(TREESITTER)/LICENSE) $(subst /,\,$(PKGROOT)/licenses/TreeSitter.txt) > nul
-	copy $(subst /,\,$(LIBCC)/LICENSE) $(subst /,\,$(PKGROOT)/licenses/LibCC.txt) > nul
+# CORE
+TSROOT      := vendor/tree-sitter
+TSBLACKLIST := $(TSROOT)/lib/src/lib.c $(TSROOT)/lib/src/wasm_store.c
+TSSOURCES   := $(filter-out $(TSBLACKLIST),$(wildcard $(TSROOT)/lib/src/*.c))
+TSOBJECTS   := $(addprefix $(OBJROOT)/tree-sitter/,$(notdir $(TSSOURCES:.c=.o)))
 
-run: compile
+# COMPILATION
+TSCCFLAGS   := -I$(TSROOT)/lib/src -I$(TSROOT)/lib/include
+TSCCDEFS    := -D_POSIX_C_SOURCE=200112L -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_DARWIN_C_SOURCE # from OG Makefile
+override TSCCFLAGS := $(CCFLAGS) $(TSCCFLAGS)
+
+# RECIPES
+$(LIBROOT)/libtree-sitter.a: $(TSOBJECTS) | $(LIBROOT)/
+	@echo [Make] Creating tree-sitter static library (libtree-sitter.a)
+	@ar rcs $@ $^
+
+$(OBJROOT)/tree-sitter/%.o: $(TSROOT)/lib/src/%.c | $(OBJROOT)/tree-sitter/
+	@echo [Make] Compiling \$(subst /,\,$@)...
+	@$(CC) $(TSCCFLAGS) $(TSCCDEFS) -c $< -o $@
+
+#      ,───.                                     ,──────.  ,──. ,───. ,───.
+#     '   .─'  ,───. ,──.,──.,──.──. ,───. ,───. │  .─.  ╲ `──'/  .─'/  .─'
+#     `.  `─. │ .─. ││  ││  ││  .──'│ .──'│ .─. :│  │  ╲  :,──.│  `─,│  `─,
+#     .─'    │' '─' ''  ''  '│  │   ╲ `──.╲   ──.│  '──'  ╱│  ││  .─'│  .─'
+#     `─────'  `───'  `────' `──'    `───' `────'`───────' `──'`──'  `──'
+#     Copyright (c) 2025 James Armstrong
+
+# CORE
+SDSOURCES   := $(wildcard src/*.c)
+SDOBJECTS   := $(addprefix $(OBJROOT)/,$(notdir $(SDSOURCES:.c=.o)))
+SDLIBS      := $(LIBROOT)/lib$(NAME).a $(LIBROOT)/libtree-sitter.a
+
+# COMPILATION
+SDCCFLAGS   := -Isrc -I$(TSROOT)/lib/include
+SDCCDEFS    := -DSD_VERSION="$(VERSION)" -DSD_DESCRIPTION="$(DESCRIPTION)"
+override SDCCFLAGS := $(CCFLAGS) $(SDCCFLAGS)
+
+# RECIPES
+$(BINROOT)/$(NAME).exe: $(SDLIBS) | $(BINROOT)/
+	@echo [Make] Compiling $(NAME).exe
+	@$(CC) $(SDLIBS) -o $(BINROOT)/$(NAME).exe
+
+$(LIBROOT)/lib$(NAME).a: $(SDOBJECTS) | $(LIBROOT)/
+	@echo [Make] Creating $(NAME) static library (lib$(NAME).a)
+	@ar rcs $@ $^
+
+$(OBJROOT)/%.o: src/%.c | $(OBJROOT)/
+	@echo [Make] Compiling \$(subst /,\,$@)...
+	@$(CC) $(SDCCFLAGS) -c $< -o $@
+
+#     ,────────.              ,──.
+#     '──.  .──',──,──. ,───. │  │,─.  ,───.
+#        │  │  ' ,─.  │(  .─' │     ╱ (  .─'
+#        │  │  ╲ '─'  │.─'  `)│  ╲  ╲ .─'  `)
+#        `──'   `──`──'`────' `──'`──'`────'
+#     Phony targets
+
+.PHONY:
+help:
+	@echo make help          - Displays all phony targets
+	@echo make pkg           - Packages SourceDiff into a distribution format
+	@echo make pkg PKGROOT=? - Packages SourceDiff into the [PKGROOT] directory
+	@echo make run           - Compiles (if neccessary) and runs SourceDiff
+	@echo make clean         - Delete all MAKE build files
+
+pkg: $(BINROOT)/$(NAME).exe | $(PKGROOT)/licenses/
+	@echo [Make] Packaging SourceDiff...
+	@$(CP) $(subst /,\,$(BINROOT))\$(NAME).exe $(subst /,\,$(PKGROOT))
+	@$(CP) LICENSE                        $(subst /,\,$(PKGROOT))\licenses\SourceDiff.txt
+	@$(CP) $(subst /,\,$(TSROOT))\LICENSE $(subst /,\,$(PKGROOT))\licenses\TreeSitter.txt
+	@echo [Make] Done!
+
+run: pkg
 	@cls
-	@$(BINROOT)/$(NAME).exe
-
-compile: deps min $(BINROOT)/$(NAME).exe
-
-min: $(INCROOT)/tree-sitter.h $(INCROOT)/libcc.h
-
-deps: $(LIBROOT)/libtreesitter.a
+	@cmd /c "cd $(subst /,\,$(PKGROOT)) && $(NAME).exe"
 
 clean:
-	if exist $(subst /,\,$(BUILDROOT)) rmdir /q $(subst /,\,$(BUILDROOT)) > nul
-	if exist $(INCROOT) rmdir /q $(INCROOT) > nul
+	@if exist $(subst /,\,$(BUILDROOT)) echo [Make] Purged build directory
+	@if not exist $(subst /,\,$(BUILDROOT)) echo [Make] No build directory - nothing to do
+	@if exist $(subst /,\,$(BUILDROOT)) rmdir /s /q $(subst /,\,$(BUILDROOT))
 
-.PHONY: all pkg run compile min deps clean
-.DEFAULT_GOAL := all
+.DEFAULT_GOAL = pkg
