@@ -82,7 +82,7 @@ SDLIBS      := $(LIBROOT)/lib$(NAME).a $(LIBROOT)/libtree-sitter.a
 
 # COMPILATION
 SDCCFLAGS   := -Isrc -I$(TSROOT)/lib/include
-SDCCDEFS    := -DSD_VERSION="$(VERSION)" -DSD_DESCRIPTION="$(DESCRIPTION)"
+SDCCDEFS    := -DSD_VERSION=\"$(VERSION)\" -DSD_DESCRIPTION="\"$(DESCRIPTION)\""
 override SDCCFLAGS := $(CCFLAGS) $(SDCCFLAGS)
 
 # RECIPES
@@ -96,7 +96,7 @@ $(LIBROOT)/lib$(NAME).a: $(SDOBJECTS) | $(LIBROOT)/
 
 $(OBJROOT)/%.o: src/%.c | $(OBJROOT)/
 	@echo [Make] Compiling \$(subst /,\,$@)...
-	@$(CC) $(SDCCFLAGS) -c $< -o $@
+	@$(CC) $(SDCCFLAGS) $(SDCCDEFS) -c $< -o $@
 
 #     ,────────.              ,──.
 #     '──.  .──',──,──. ,───. │  │,─.  ,───.
