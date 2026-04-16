@@ -58,6 +58,7 @@ TSOBJECTS   := $(addprefix $(OBJROOT)/tree-sitter/,$(notdir $(TSSOURCES:.c=.o)))
 TSCCFLAGS   := -I$(TSROOT)/lib/src -I$(TSROOT)/lib/include
 TSCCDEFS    := -D_POSIX_C_SOURCE=200112L -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_DARWIN_C_SOURCE # from OG Makefile
 override TSCCFLAGS := $(CCFLAGS) $(TSCCFLAGS)
+override TSCCDEFS  := $(CCDEFS)  $(TSCCDEFS)
 
 # RECIPES
 $(LIBROOT)/libtree-sitter.a: $(TSOBJECTS) | $(LIBROOT)/
@@ -84,6 +85,7 @@ SDLIBS      := $(LIBROOT)/lib$(NAME).a $(LIBROOT)/libtree-sitter.a
 SDCCFLAGS   := -Isrc -I$(TSROOT)/lib/include
 SDCCDEFS    := -DSD_VERSION=\"$(VERSION)\" -DSD_DESCRIPTION="\"$(DESCRIPTION)\""
 override SDCCFLAGS := $(CCFLAGS) $(SDCCFLAGS)
+override SDCCDEFS  := $(CCDEFS)  $(SDCCDEFS)
 
 # RECIPES
 $(BINROOT)/$(NAME).exe: $(SDLIBS) | $(BINROOT)/
@@ -125,8 +127,8 @@ run: pkg
 	@cmd /c "cd $(subst /,\,$(PKGROOT)) && $(NAME).exe"
 
 clean:
-	@if exist $(subst /,\,$(BUILDROOT)) echo [Make] Purged build directory
+	@if exist     $(subst /,\,$(BUILDROOT)) echo [Make] Purged build directory
 	@if not exist $(subst /,\,$(BUILDROOT)) echo [Make] No build directory - nothing to do
-	@if exist $(subst /,\,$(BUILDROOT)) rmdir /s /q $(subst /,\,$(BUILDROOT))
+	@if exist     $(subst /,\,$(BUILDROOT)) rmdir /s /q $(subst /,\,$(BUILDROOT))
 
 .DEFAULT_GOAL = pkg
