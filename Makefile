@@ -34,6 +34,7 @@ PKGROOT     ?= $(BUILDROOT)/pkg
 
 # SHELL UTILITIES
 CP          := copy > nul
+CLEAR       := cls
 
 # GLOBAL DIRECTORY RECIPE
 %/:
@@ -70,7 +71,7 @@ $(OBJROOT)/tree-sitter/%.o: $(TSROOT)/lib/src/%.c | $(OBJROOT)/tree-sitter/
 	@$(CC) $(TSCCFLAGS) $(TSCCDEFS) -c $< -o $@
 
 #      ,───.                                     ,──────.  ,──. ,───. ,───.
-#     '   .─'  ,───. ,──.,──.,──.──. ,───. ,───. │  .─.  ╲ `──'/  .─'/  .─'
+#     '   .─'  ,───. ,──.,──.,──.──. ,───. ,───. │  .─.  ╲ `──'╱  .─'╱  .─'
 #     `.  `─. │ .─. ││  ││  ││  .──'│ .──'│ .─. :│  │  ╲  :,──.│  `─,│  `─,
 #     .─'    │' '─' ''  ''  '│  │   ╲ `──.╲   ──.│  '──'  ╱│  ││  .─'│  .─'
 #     `─────'  `───'  `────' `──'    `───' `────'`───────' `──'`──'  `──'
@@ -115,6 +116,7 @@ help:
 	@echo make pkg           - Packages SourceDiff into a distribution format
 	@echo make pkg PKGROOT=? - Packages SourceDiff into the [PKGROOT] directory
 	@echo make run           - Compiles (if neccessary) and runs SourceDiff
+	@echo make run RUNARGS=? - Compiles (if neccessary) and runs SourceDiff with the supplied arguments
 	@echo make clean         - Delete all MAKE build files
 
 pkg: $(BINROOT)/$(NAME).exe | $(PKGROOT)/licenses/
@@ -125,8 +127,8 @@ pkg: $(BINROOT)/$(NAME).exe | $(PKGROOT)/licenses/
 	@echo [Make] Done!
 
 run: pkg
-	@cls
-	@cmd /c "cd $(subst /,\,$(PKGROOT)) && $(NAME).exe"
+	@$(CLEAR)
+	@cmd /c "cd $(subst /,\,$(PKGROOT)) && $(NAME).exe $(RUNARGS)"
 
 clean:
 	@if exist     $(subst /,\,$(BUILDROOT)) echo [Make] Purged build directory
