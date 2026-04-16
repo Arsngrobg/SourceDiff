@@ -48,7 +48,7 @@ CP          := copy > nul
 #     Copyright (c) 2018 Max Brunsfeld
 #     Custom build by James Armstrong
 
-# CORE
+# SOURCES
 TSROOT      := vendor/tree-sitter
 TSBLACKLIST := $(TSROOT)/lib/src/lib.c $(TSROOT)/lib/src/wasm_store.c
 TSSOURCES   := $(filter-out $(TSBLACKLIST),$(wildcard $(TSROOT)/lib/src/*.c))
@@ -76,16 +76,18 @@ $(OBJROOT)/tree-sitter/%.o: $(TSROOT)/lib/src/%.c | $(OBJROOT)/tree-sitter/
 #     `─────'  `───'  `────' `──'    `───' `────'`───────' `──'`──'  `──'
 #     Copyright (c) 2025 James Armstrong
 
-# CORE
+# SOURCES
 SDSOURCES   := $(wildcard src/*.c)
 SDOBJECTS   := $(addprefix $(OBJROOT)/,$(notdir $(SDSOURCES:.c=.o)))
+SDDEPS      := $(SDOBJECTS:.o=.d)
 SDLIBS      := $(LIBROOT)/lib$(NAME).a $(LIBROOT)/libtree-sitter.a
 
 # COMPILATION
-SDCCFLAGS   := -Isrc -I$(TSROOT)/lib/include
+SDCCFLAGS   := -MMD -MP -Isrc -I$(TSROOT)/lib/include
 SDCCDEFS    := -DSD_VERSION=\"$(VERSION)\" -DSD_DESCRIPTION="\"$(DESCRIPTION)\""
 override SDCCFLAGS := $(CCFLAGS) $(SDCCFLAGS)
 override SDCCDEFS  := $(CCDEFS)  $(SDCCDEFS)
+-include $(SDDEPS)
 
 # RECIPES
 $(BINROOT)/$(NAME).exe: $(SDLIBS) | $(BINROOT)/
