@@ -11,20 +11,18 @@
 //   ▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░▌          ▐░▌
 //   ▀▀▀▀▀▀▀▀▀▀▀  ▀         ▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀   ▀▀▀▀▀▀▀▀▀▀▀  ▀            ▀
 //
-//   The configuration data of the application through its CLI interface
+//   The modes of SourceDiff
 
-#ifndef SDCONFIG_H
-#define SDCONFIG_H
+#ifndef SDMODE_H
+#define SDMODE_H
 
-#include "sdoptions.h"
-#include "sdmode.h"
+#define SD_MODE_DIFF_STRING     "diff"
+#define SD_MODE_REGISTER_STRING "register"
 
-typedef struct {
-    char         *exec_name; // the name of the executable that hosts SourceDiff
-    char         *output;    // the output file
-    char         *args[2];   // the argument buffer for modes
-    SD_Mode       mode;      // the current mode
-    SD_OptionSet  options;   // the global options
-} SD_Config;
+typedef enum {
+    SD_MODE_NONE     = 0,
+    SD_MODE_DIFF     = 1,
+    SD_MODE_REGISTER = 2
+} SD_Mode;
 
-#endif // SDCONFIG_H
+#endif // SDMODE_H
