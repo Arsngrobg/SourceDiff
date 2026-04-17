@@ -18,19 +18,24 @@
 
 #include <stdint.h>
 
-#define SD_OPTIONS          \
-    X(HELP,    "--help"   ) \
-    X(VERSION, "--version") \
-    X(VERBOSE, "-v"       )
+#define SD_OPTION_STRING_HELP    "--help"
+#define SD_OPTION_STRING_VERSION "--version"
+#define SD_OPTION_STRING_VERBOSE "-v"
 
 typedef enum {
-#define X(id, str) SD_OPTION_##id = 1 << __COUNTER__,
-    SD_OPTIONS
-#undef X
-    SD_OPTION_COUNT
-} SD_Option;
+    SD_OPTION_TYPE_NONE    = 0,
+    SD_OPTION_TYPE_HELP    = 1,
+    SD_OPTION_TYPE_VERSION = 2,
+    SD_OPTION_TYPE_VERBOSE = 3
+} SD_OptionType;
 
-typedef uint8_t SD_OptionSet; // all our flags fit into this mask
-_Static_assert(SD_OPTION_COUNT <= (sizeof(SD_OptionSet) * 8), "too many options that cannot fit inside the bits of SD_OptionSet");
+typedef enum {
+    SD_OPTION_BIT_HELP    = 1 << SD_OPTION_TYPE_HELP,
+    SD_OPTION_BIT_VERSION = 1 << SD_OPTION_TYPE_VERSION,
+    SD_OPTION_BIT_VERBOSE = 1 << SD_OPTION_TYPE_VERBOSE
+} SD_OptionBit;
+
+// 00000vVH
+typedef uint8_t SD_OptionSet;
 
 #endif // SDOPTIONS_h
