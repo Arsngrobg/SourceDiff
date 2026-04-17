@@ -35,11 +35,13 @@ PKGROOT     ?= $(BUILDROOT)/pkg
 # SHELL UTILITIES
 CP          := copy > nul
 CLEAR       := cls
+EXISTS      := if exist
+NOTEXISTS   := if not exist
 
 # GLOBAL DIRECTORY RECIPE
 %/:
-	@if not exist $(subst /,\,$@) echo [Make] Creating new directory $(subst /,\,\$(patsubst %/,%,$@))
-	@if not exist $(subst /,\,$@) mkdir $(subst /,\,$@)
+	@$(NOTEXISTS) $(subst /,\,$@) echo [Make] Creating new directory $(subst /,\,\$(patsubst %/,%,$@))
+	@$(NOTEXISTS) $(subst /,\,$@) mkdir $(subst /,\,$@)
 
 #     ,────────.                          ,───.  ,──.  ,──.    ,──.
 #     '──.  .──',──.──. ,───.  ,───.     '   .─' `──',─'  '─.,─'  '─. ,───. ,──.──.
@@ -122,8 +124,8 @@ help:
 pkg: $(BINROOT)/$(NAME).exe | $(PKGROOT)/licenses/
 	@echo [Make] Packaging SourceDiff...
 	@$(CP) $(subst /,\,$(BINROOT))\$(NAME).exe $(subst /,\,$(PKGROOT))
-	@$(CP) LICENSE                        $(subst /,\,$(PKGROOT))\licenses\SourceDiff.txt
-	@$(CP) $(subst /,\,$(TSROOT))\LICENSE $(subst /,\,$(PKGROOT))\licenses\TreeSitter.txt
+	@$(CP) LICENSE                             $(subst /,\,$(PKGROOT))\licenses\SourceDiff.txt
+	@$(CP) $(subst /,\,$(TSROOT))\LICENSE      $(subst /,\,$(PKGROOT))\licenses\TreeSitter.txt
 	@echo [Make] Done!
 
 run: pkg
@@ -131,8 +133,8 @@ run: pkg
 	@cmd /c "cd $(subst /,\,$(PKGROOT)) && $(NAME).exe $(RUNARGS)"
 
 clean:
-	@if exist     $(subst /,\,$(BUILDROOT)) echo [Make] Purged build directory
-	@if not exist $(subst /,\,$(BUILDROOT)) echo [Make] No build directory - nothing to do
-	@if exist     $(subst /,\,$(BUILDROOT)) rmdir /s /q $(subst /,\,$(BUILDROOT))
+	@$(EXISTS)    $(subst /,\,$(BUILDROOT)) echo [Make] Purged build directory
+	@$(NOTEXISTS) $(subst /,\,$(BUILDROOT)) echo [Make] No build directory - nothing to do
+	@$(EXISTS)    $(subst /,\,$(BUILDROOT)) rmdir /s /q $(subst /,\,$(BUILDROOT))
 
 .DEFAULT_GOAL = pkg
