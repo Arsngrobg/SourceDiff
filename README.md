@@ -28,6 +28,8 @@ If your programming language does not have an officially-recognised Tree Sitter 
 create your own. See the Tree Sitter [documentation](https://tree-sitter.github.io/tree-sitter/creating-parsers/index.html) for how to
 create your own.
 
+*See below on how to register a new grammar to **SourceDiff**.*
+
 ## Building From Source
 To build **SourceDiff** from source, you are required to have *make* installed on your system. This makes it really to compile
 **SourceDiff**:
@@ -39,8 +41,16 @@ This will produce a `build/pkg` directory that will contain all the neccessary f
 setup your `PATH` variable if you intend to properly use this software; or navigate to the `build/pkg` directory. After, just invoke
 the executable using the command-line:
 ```bash
-~ > ./srcdiff diff <file1> <file2>
+~ > ./srcdiff diff <file> <file>
 ```
+
+By default, **SourceDiff** will be packaged without any precompiled grammars.
+As stated above, you can find pre made parsers on the Tree Sitter [docs](https://tree-sitter.github.io/tree-sitter/#parsers).
+To register a new language parser:
+```bash
+~ > ./srcdiff register <name> <dir>
+```
+**<name> is the resulting shared library (.so/.dll/.dylib), and <dir> is the source directory for the `.c` files**
 
 For more information on how to use this software, use the following command:
 ```bash
