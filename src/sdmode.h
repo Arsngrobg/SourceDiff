@@ -16,6 +16,8 @@
 #ifndef SDMODE_H
 #define SDMODE_H
 
+#define SD_MODE_MAX_ARG         (2)
+
 #define SD_MODE_DIFF_STRING     "diff"
 #define SD_MODE_REGISTER_STRING "register"
 
