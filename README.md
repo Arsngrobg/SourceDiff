@@ -50,7 +50,7 @@ To register a new language parser:
 ```bash
 ~ > ./srcdiff register <name> <dir>
 ```
-**<name> is the resulting shared library (.so/.dll/.dylib), and <dir> is the source directory for the `.c` files**
+You specify the resulting name of the shared library that **SourceDiff** references and the source directory of the parser `.c` files.
 
 For more information on how to use this software, use the following command:
 ```bash
