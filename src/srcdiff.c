@@ -43,11 +43,14 @@
     "\n"                                                                                 \
     "For more information: "SD_REPO"\n"
 
+// helper type for safe string slicing
 typedef struct {
     const char *str;
     uint64_t    start;
     uint64_t    length;
 } SD_StringSlice;
+
+#define SD_STRINGSLICE_FMT(s) (int) s.length, s.str + s.start
 
 void sd_strip_ext(const char *file, SD_StringSlice *slice) {
     assert(file != NULL); assert(strlen(file) != 0);
@@ -55,21 +58,21 @@ void sd_strip_ext(const char *file, SD_StringSlice *slice) {
     slice->str    = file;
     slice->start  = 0;
     slice->length = strlen(file);
-    while (slice->length > 0) {
-        if (slice->str[slice->length - 1] == '.') {
-            slice->length--;
+    int64_t idx = strlen(file) - 1;
+    while (idx >= 0) {
+        if (slice->str[idx] == '.') {
+            slice->length = idx;
             break;
         }
 
-        slice->length--;
+        idx--;
     }
-    (void)0;
 }
 
 int32_t main(int32_t argc, char *argv[]) {
     (void) argc;
     SD_StringSlice noext;
     sd_strip_ext(argv[0], &noext);
-    printf(SD_HELP_STRING, (int) noext.length, noext.str, (int) noext.length, noext.str);
+    printf(SD_HELP_STRING, SD_STRINGSLICE_FMT(noext), SD_STRINGSLICE_FMT(noext));
     return 0;
 }
