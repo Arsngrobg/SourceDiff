@@ -24,8 +24,10 @@
 // The modes of SourceDiff
 typedef enum {
     SD_MODE_NONE     = 0, // ./srcdiff          ...
-    SD_MODE_DIFF     = 1, // ./srcdiff diff     ...
-    SD_MODE_REGISTER = 2  // ./srcdiff register ...
+    SD_MODE_DIFF     = 1, // ./srcdiff diff     <file> <file>
+    SD_MODE_ANALYSE  = 2, // ./srcdiff analyse  <dir>
+    SD_MODE_LINT     = 3, // ./srcdiff lint     <dir>
+    SD_MODE_REGISTER = 4  // ./srcdiff register <name> <dir>
 } SD_Mode;
 
 // The global options of SourceDiff - each representing their bit they configure

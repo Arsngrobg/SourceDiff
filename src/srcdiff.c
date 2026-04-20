@@ -33,8 +33,10 @@
     "Copyright (c) 2025 James Armstrong\n"                                               \
     "\n"                                                                                 \
     "Usage:\n"                                                                           \
-    "  %.*s diff     <file1> <file2>   The difference between <file1> and <file2>\n"     \
-    "  %.*s register <name>  <dir>     Registers a new language (C compiler required)\n" \
+    "  %.*s diff     <file> <file>   The difference between both files\n"                \
+    "  %.*s analyse  <glob>          Analyses the files that match the glob\n"           \
+    "  %.*s lint     <glob>          Lints the files that match the glob\n"              \
+    "  %.*s register <name> <dir>    Registers a new language (C compiler required)\n"   \
     "Options:\n"                                                                         \
     "  --help      Display this information\n"                                           \
     "  --version   Display version information for SourceDiff\n"                         \
@@ -72,18 +74,38 @@ int32_t sd_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
             cfg->mode = SD_MODE_DIFF;
             if ((arg + 2) >= (size_t) argc) {
                 status = EXIT_FAILURE;
-                fprintf(stderr, "%*s: \x1b[1;31merror:\x1b[0m missing files to diff with\n", (int32_t) cfg->exec.length, cfg->exec.src);
+                fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m missing files to diff with\n", (int32_t) cfg->exec.length, cfg->exec.src);
                 continue;
             }
 
             cfg->args[0] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
             cfg->args[1] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
         }
+        else if (strcmp(argv[arg], "analyse") == 0) {
+            cfg->mode = SD_MODE_ANALYSE;
+            if ((arg + 1) == (size_t) argc) {
+                status = EXIT_FAILURE;
+                fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m missing glob pattern\n", (int32_t) cfg->exec.length, cfg->exec.src);
+                continue;
+            }
+
+            cfg->args[0] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
+        }
+        else if (strcmp(argv[arg], "lint") == 0) {
+            cfg->mode = SD_MODE_LINT;
+            if ((arg + 1) == (size_t) argc) {
+                status = EXIT_FAILURE;
+                fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m missing glob pattern\n", (int32_t) cfg->exec.length, cfg->exec.src);
+                continue;
+            }
+
+            cfg->args[0] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
+        }
         else if (strcmp(argv[arg], "register") == 0) {
             cfg->mode = SD_MODE_REGISTER;
-            if ((arg + 2) == (size_t) argc) {
+            if ((arg + 2) >= (size_t) argc) {
                 status = EXIT_FAILURE;
-                fprintf(stderr, "%*s: \x1b[1;31merror:\x1b[0m missing language name and sources\n", (int32_t) cfg->exec.length, cfg->exec.src);
+                fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m missing language name and sources\n", (int32_t) cfg->exec.length, cfg->exec.src);
                 continue;
             }
 
@@ -105,7 +127,7 @@ int32_t sd_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
             cfg->options |= SD_OPTION_OUTPUT;
             if ((arg + 1) == (size_t) argc) {
                 status = EXIT_FAILURE;
-                fprintf(stderr, "%*s: \x1b[1;31merror:\x1b[0m missing filename after '-o'\n", (int32_t) cfg->exec.length, cfg->exec.src);
+                fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m missing filename after '-o'\n", (int32_t) cfg->exec.length, cfg->exec.src);
                 continue;
             }
 
@@ -124,7 +146,14 @@ int32_t sd_exec(const SD_Config *cfg) {
 
     // these arguments have higher priority
     if ((cfg->options & SD_OPTION_HELP) != 0) {
-        fprintf(stdout, SD_HELP_STRING, (int32_t) cfg->exec.length, cfg->exec.src, (int32_t) cfg->exec.length, cfg->exec.src);
+        fprintf(
+            stdout,
+            SD_HELP_STRING,
+            (int32_t) cfg->exec.length, cfg->exec.src,
+            (int32_t) cfg->exec.length, cfg->exec.src,
+            (int32_t) cfg->exec.length, cfg->exec.src,
+            (int32_t) cfg->exec.length, cfg->exec.src
+        );
         goto early_exit;
     } else if ((cfg->options & SD_OPTION_VERSION) != 0) {
         fprintf(stdout, "v%s\n", SD_VERSION);
@@ -138,6 +167,14 @@ int32_t sd_exec(const SD_Config *cfg) {
             break;
         case SD_MODE_DIFF:
             fprintf(stderr, "%*s: \x1b[1;31merror:\x1b[0m diff mode not implemented (TODO)\n", (int32_t) cfg->exec.length, cfg->exec.src);
+            status = EXIT_FAILURE;
+            break;
+        case SD_MODE_ANALYSE:
+            fprintf(stderr, "%*s: \x1b[1;31merror:\x1b[0m analyse mode not implemented (TODO)\n", (int32_t) cfg->exec.length, cfg->exec.src);
+            status = EXIT_FAILURE;
+            break;
+        case SD_MODE_LINT:
+            fprintf(stderr, "%*s: \x1b[1;31merror:\x1b[0m lint mode not implemented (TODO)\n", (int32_t) cfg->exec.length, cfg->exec.src);
             status = EXIT_FAILURE;
             break;
         case SD_MODE_REGISTER:
