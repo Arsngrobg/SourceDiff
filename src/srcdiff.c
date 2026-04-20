@@ -50,7 +50,7 @@ void sd_strip_ext(const char *file, SD_StringView *view) {
     view->length = strlen(file);
     for (size_t pos = view->length - 1; pos != 0; pos--) {
         if (file[pos] == '.') {
-            view->length = pos - 1;
+            view->length = pos;
             break;
         }
     }
@@ -67,13 +67,31 @@ int32_t sd_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
     for (size_t arg = 1; arg < (size_t) argc; arg++) {
         SD_DEBUG_LOGF("Processing command-line argument '%s'", argv[arg]);
 
+        // modes
         if (strcmp(argv[arg], "diff") == 0) {
             cfg->mode = SD_MODE_DIFF;
+            if ((arg + 2) == (size_t) argc) {
+                status = EXIT_FAILURE;
+                fprintf(stderr, "%*s: \x1b[1;31merror:\x1b[0m missing files to diff with\n", (int32_t) cfg->exec.length, cfg->exec.src);
+                continue;
+            }
+
+            cfg->args[0] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
+            cfg->args[1] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
         }
         else if (strcmp(argv[arg], "register") == 0) {
             cfg->mode = SD_MODE_REGISTER;
+            if ((arg + 2) == (size_t) argc) {
+                status = EXIT_FAILURE;
+                fprintf(stderr, "%*s: \x1b[1;31merror:\x1b[0m missing language name and sources\n", (int32_t) cfg->exec.length, cfg->exec.src);
+                continue;
+            }
+
+            cfg->args[0] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
+            cfg->args[1] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
         }
 
+        // options
         else if (strcmp(argv[arg], "--help") == 0) {
             cfg->options |= SD_OPTION_HELP;
         }
@@ -85,16 +103,14 @@ int32_t sd_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
         }
         else if (strcmp(argv[arg], "-o") == 0) {
             cfg->options |= SD_OPTION_OUTPUT;
-
             if ((arg + 1) == (size_t) argc) {
                 status = EXIT_FAILURE;
                 fprintf(stderr, "%*s: \x1b[1;31merror:\x1b[0m missing filename after '-o'\n", (int32_t) cfg->exec.length, cfg->exec.src);
                 continue;
             }
 
-            arg++;
-            cfg->output = (SD_StringView) { strlen(argv[arg]), argv[arg] };
             SD_DEBUG_LOGF("Processing sub-argument of '-o' ('%*s')", (int32_t) cfg->output.length, cfg->output.src);
+            cfg->output = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
         }
     }
 
@@ -105,7 +121,7 @@ int32_t sd_exec(const SD_Config *cfg) {
     assert(cfg != NULL);
 
     int32_t status = EXIT_SUCCESS;
-    
+
     // these arguments have higher priority
     if ((cfg->options & SD_OPTION_HELP) != 0) {
         fprintf(stdout, SD_HELP_STRING, (int32_t) cfg->exec.length, cfg->exec.src, (int32_t) cfg->exec.length, cfg->exec.src);
