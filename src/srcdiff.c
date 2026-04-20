@@ -70,7 +70,7 @@ int32_t sd_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
         // modes
         if (strcmp(argv[arg], "diff") == 0) {
             cfg->mode = SD_MODE_DIFF;
-            if ((arg + 2) == (size_t) argc) {
+            if ((arg + 2) >= (size_t) argc) {
                 status = EXIT_FAILURE;
                 fprintf(stderr, "%*s: \x1b[1;31merror:\x1b[0m missing files to diff with\n", (int32_t) cfg->exec.length, cfg->exec.src);
                 continue;
