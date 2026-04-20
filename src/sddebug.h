@@ -17,7 +17,7 @@
 #define SDDEBUG_H
 
 #ifndef NDEBUG
-#define SD_DEBUG_LOG(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#define SD_DEBUG_LOG(fmt, ...) printf("[DEBUG] "fmt"\n", ##__VA_ARGS__)
 #else
 #define SD_DEBUG_LOG(fmt, ...)
 #endif // NDEBUG
