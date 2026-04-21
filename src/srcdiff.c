@@ -159,14 +159,14 @@ int32_t sd_exec(const SD_Config *cfg) {
             SD_STRING_FORMAT(cfg->exec),
             SD_STRING_FORMAT(cfg->exec)
         );
-        goto early_exit;
+        goto short_circuit;
     } else if ((cfg->options & SD_OPTION_VERSION) != 0) {
         fprintf(stdout, "v%s\n", SD_VERSION);
-        goto early_exit;
+        goto short_circuit;
     } else if ((cfg->options & SD_OPTION_LIST_LANGUAGES) != 0) {
         fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m '--list-languages' option not implemented (TODO)\n", SD_STRING_FORMAT(cfg->exec));
         status = EXIT_FAILURE;
-        goto early_exit;
+        goto short_circuit;
     }
 
     switch (cfg->mode) {
@@ -192,7 +192,7 @@ int32_t sd_exec(const SD_Config *cfg) {
             break;
     }
 
-early_exit:
+short_circuit:
     return status;
 }
 
