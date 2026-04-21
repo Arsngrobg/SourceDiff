@@ -3,6 +3,7 @@
 
 # Compilation Artifacts
 *.o
+*.d
 *.a
 *.dll
 *.exe
