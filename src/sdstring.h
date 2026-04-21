@@ -19,6 +19,9 @@
 
 #include <stddef.h>
 
+#define SD_STRING_FORMAT(s) \
+    ((int)(s).length),((s).buf)
+
 // A length-based, owned string
 typedef struct {
     size_t length;
@@ -28,7 +31,7 @@ typedef struct {
 // A view into a string (either char* or SD_String)
 typedef struct {
     size_t      length;
-    const char *src;
+    const char *buf;
 } SD_StringView;
 
 #endif // SDSTRING_H

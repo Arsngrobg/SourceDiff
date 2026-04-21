@@ -17,6 +17,7 @@
 NAME        := srcdiff
 VERSION     := 1.0a
 DESCRIPTION := A tool for analysing codebases using parse trees
+DOCS        := https://github.com/Arsngrobg/SourceDiff\#building-from-source
 
 # GLOBAL COMPILATION CONFIGURATION
 CC          := cc
@@ -87,7 +88,7 @@ SDLIBS      := $(LIBROOT)/lib$(NAME).a $(LIBROOT)/libtree-sitter.a
 
 # COMPILATION
 SDCCFLAGS   := -MMD -MP -Isrc -I$(TSROOT)/lib/include
-SDCCDEFS    := -DSD_VERSION=\"$(VERSION)\" -DSD_DESCRIPTION="\"$(DESCRIPTION)\"" -DSD_REPO=\"https://github.com/Arsngrobg/SourceDiff\"
+SDCCDEFS    := -DSD_VERSION=\"$(VERSION)\" -DSD_DESCRIPTION="\"$(DESCRIPTION)\"" -DSD_DOCS=\"$(DOCS)\"
 override SDCCFLAGS := $(CCFLAGS) $(SDCCFLAGS)
 override SDCCDEFS  := $(CCDEFS)  $(SDCCDEFS)
 -include $(SDDEPS)
