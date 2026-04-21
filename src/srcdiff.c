@@ -198,5 +198,5 @@ short_circuit:
 
 int32_t main(int32_t argc, const char *argv[]) {
     SD_Config cfg;
-    return !((sd_parse_args(argc, argv, &cfg) == 0) && (sd_exec(&cfg) == 0));
+    return sd_parse_args(argc, argv, &cfg) | sd_exec(&cfg);
 }
