@@ -32,14 +32,15 @@ typedef enum {
 
 // The global options of SourceDiff - each representing their bit they configure
 typedef enum {
-    SD_OPTION_HELP    = 1 << 0, // ./srcdiff --help
-    SD_OPTION_VERSION = 1 << 1, // ./srcdiff --version
-    SD_OPTION_VERBOSE = 1 << 2, // ./srcdiff -v        ...
-    SD_OPTION_OUTPUT  = 1 << 3  // ./srcdiff -o <file> ...
+    SD_OPTION_HELP           = 1 << 0, // ./srcdiff --help
+    SD_OPTION_VERSION        = 1 << 1, // ./srcdiff --version
+    SD_OPTION_LIST_LANGUAGES = 1 << 2, // ./srcdiff --list-languages
+    SD_OPTION_VERBOSE        = 1 << 3, // ./srcdiff -v        ...
+    SD_OPTION_OUTPUT         = 1 << 4  // ./srcdiff -o <file> ...
 } SD_Option;
 
 // The bits we use to denote enabled or disabled options
-// 0000ovVH
+// 000ovLVH
 typedef uint8_t SD_OptionSet;
 
 // The configuration of SourceDiff
