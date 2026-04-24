@@ -22,9 +22,8 @@ DOCS        := https://github.com/Arsngrobg/SourceDiff\#building-from-source
 # GLOBAL COMPILATION CONFIGURATION
 CC          := cc
 CSTD        := 11
-CCFLAGS     := -O2 -Wall -Wextra -Wpedantic
-CCDEFS      := -DNDEBUG
-override CCFLAGS := -std=c$(CSTD) $(CCFLAGS)
+CFLAGS      := -O2 -Wall -Wextra -Wpedantic -DNDEBUG
+override CFLAGS := -std=c$(CSTD) $(CFLAGS)
 
 # BUILD SYSTEM
 BUILDROOT   ?= build
@@ -41,7 +40,7 @@ NOTEXISTS   := if not exist
 
 # GLOBAL DIRECTORY RECIPE
 %/:
-	@$(NOTEXISTS) $(subst /,\,$@) echo [Make] Creating new directory $(subst /,\,\$(patsubst %/,%,$@))
+	@$(NOTEXISTS) $(subst /,\,$@) echo make: Creating new directory $(subst /,\,\$(patsubst %/,%,$@))
 	@$(NOTEXISTS) $(subst /,\,$@) mkdir $(subst /,\,$@)
 
 #     ,────────.                          ,───.  ,──.  ,──.    ,──.
@@ -59,19 +58,28 @@ TSSOURCES   := $(filter-out $(TSBLACKLIST),$(wildcard $(TSROOT)/lib/src/*.c))
 TSOBJECTS   := $(addprefix $(OBJROOT)/tree-sitter/,$(notdir $(TSSOURCES:.c=.o)))
 
 # COMPILATION
-TSCCFLAGS   := -I$(TSROOT)/lib/src -I$(TSROOT)/lib/include
-TSCCDEFS    := -D_POSIX_C_SOURCE=200112L -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_DARWIN_C_SOURCE # from OG Makefile
-override TSCCFLAGS := $(CCFLAGS) $(TSCCFLAGS)
-override TSCCDEFS  := $(CCDEFS)  $(TSCCDEFS)
+TSCFLAGS   := -I$(TSROOT)/lib/src -I$(TSROOT)/lib/include
+TSCDEFS    := -D_POSIX_C_SOURCE=200112L -D_DEFAULT_SOURCE -D_BSD_SOURCE -D_DARWIN_C_SOURCE # from OG Makefile
+override TSCFLAGS := $(CFLAGS) $(TSCFLAGS)
+override TSCDEFS  := $(CDEFS)  $(TSCDEFS)
 
 # RECIPES
 $(LIBROOT)/libtree-sitter.a: $(TSOBJECTS) | $(LIBROOT)/
-	@echo [Make] Creating tree-sitter static library (libtree-sitter.a)
+	@echo make: Creating tree-sitter static library (libtree-sitter.a)
 	@ar rcs $@ $^
 
 $(OBJROOT)/tree-sitter/%.o: $(TSROOT)/lib/src/%.c | $(OBJROOT)/tree-sitter/
-	@echo [Make] Compiling \$(subst /,\,$@)...
-	@$(CC) $(TSCCFLAGS) $(TSCCDEFS) -c $< -o $@
+	@echo make: Compiling \$(subst /,\,$@)...
+	@$(CC) $(TSCFLAGS) $(TSCDEFS) -c $< -o $@
+
+#      ,──.   ,──.,──.    ,─────. ,─────.
+#      │  │   `──'│  │─. '  .──./'  .──./
+#      │  │   ,──.│ .─. '│  │    │  │
+#      │  '──.│  ││ `─' │'  '──'╲'  '──'╲
+#      `─────'`──' `───'  `─────' `─────'
+#      Copyright (c) 2026 James Armstrong
+
+include vendor/libcc/libcc.mk
 
 #      ,───.                                     ,──────.  ,──. ,───. ,───.
 #     '   .─'  ,───. ,──.,──.,──.──. ,───. ,───. │  .─.  ╲ `──'╱  .─'╱  .─'
@@ -84,27 +92,28 @@ $(OBJROOT)/tree-sitter/%.o: $(TSROOT)/lib/src/%.c | $(OBJROOT)/tree-sitter/
 SDSOURCES   := $(wildcard src/*.c)
 SDOBJECTS   := $(addprefix $(OBJROOT)/,$(notdir $(SDSOURCES:.c=.o)))
 SDDEPS      := $(SDOBJECTS:.o=.d)
-SDLIBS      := $(LIBROOT)/lib$(NAME).a $(LIBROOT)/libtree-sitter.a
+SDLIBS      := $(LIBROOT)/lib$(NAME).a $(LIBROOT)/libtree-sitter.a $(LIBROOT)/libcc.a
 
 # COMPILATION
-SDCCFLAGS   := -MMD -MP -Isrc -I$(TSROOT)/lib/include
-SDCCDEFS    := -DSD_VERSION=\"$(VERSION)\" -DSD_DESCRIPTION="\"$(DESCRIPTION)\"" -DSD_DOCS=\"$(DOCS)\"
-override SDCCFLAGS := $(CCFLAGS) $(SDCCFLAGS)
-override SDCCDEFS  := $(CCDEFS)  $(SDCCDEFS)
--include $(SDDEPS)
+SDCFLAGS   := -MMD -MP -Isrc -I$(TSROOT)/lib/include -Ivendor/libcc
+SDCDEFS    := -DSD_VERSION=\"$(VERSION)\" -DSD_DESCRIPTION="\"$(DESCRIPTION)\"" -DSD_DOCS=\"$(DOCS)\"
+override SDCFLAGS := $(CFLAGS) $(SDCFLAGS)
+override SDCDEFS  := $(CDEFS)  $(SDCDEFS)
 
 # RECIPES
+-include $(SDDEPS)
+
 $(BINROOT)/$(NAME).exe: $(SDLIBS) | $(BINROOT)/
-	@echo [Make] Compiling $(NAME).exe
+	@echo make: Compiling $(NAME).exe
 	@$(CC) $(SDLIBS) -o $(BINROOT)/$(NAME).exe
 
 $(LIBROOT)/lib$(NAME).a: $(SDOBJECTS) | $(LIBROOT)/
-	@echo [Make] Creating $(NAME) static library (lib$(NAME).a)
+	@echo make: Creating $(NAME) static library (lib$(NAME).a)
 	@ar rcs $@ $^
 
 $(OBJROOT)/%.o: src/%.c | $(OBJROOT)/
-	@echo [Make] Compiling \$(subst /,\,$@)...
-	@$(CC) $(SDCCFLAGS) $(SDCCDEFS) -c $< -o $@
+	@echo make: Compiling \$(subst /,\,$@)...
+	@$(CC) $(SDCFLAGS) $(SDCDEFS) -c $< -o $@
 
 #     ,────────.              ,──.
 #     '──.  .──',──,──. ,───. │  │,─.  ,───.
@@ -123,19 +132,19 @@ help:
 	@echo make clean         - Delete all MAKE build files
 
 pkg: $(BINROOT)/$(NAME).exe | $(PKGROOT)/licenses/
-	@echo [Make] Packaging SourceDiff...
+	@echo make: Packaging SourceDiff...
 	@$(CP) $(subst /,\,$(BINROOT))\$(NAME).exe $(subst /,\,$(PKGROOT))
 	@$(CP) LICENSE                             $(subst /,\,$(PKGROOT))\licenses\SourceDiff.txt
 	@$(CP) $(subst /,\,$(TSROOT))\LICENSE      $(subst /,\,$(PKGROOT))\licenses\TreeSitter.txt
-	@echo [Make] Done!
+	@echo make: Done!
 
 run: pkg
 	@$(CLEAR)
 	@cmd /c "cd $(subst /,\,$(PKGROOT)) && $(NAME).exe $(ARGV)"
 
 clean:
-	@$(EXISTS)    $(subst /,\,$(BUILDROOT)) echo [Make] Purged build directory
-	@$(NOTEXISTS) $(subst /,\,$(BUILDROOT)) echo [Make] No build directory - nothing to do
+	@$(EXISTS)    $(subst /,\,$(BUILDROOT)) echo make: Purged build directory
+	@$(NOTEXISTS) $(subst /,\,$(BUILDROOT)) echo make: No build directory - nothing to do
 	@$(EXISTS)    $(subst /,\,$(BUILDROOT)) rmdir /s /q $(subst /,\,$(BUILDROOT))
 
 .DEFAULT_GOAL = pkg
