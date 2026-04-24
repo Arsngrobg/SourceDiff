@@ -19,6 +19,7 @@
 #include <stdio.h>
 
 #include "tree_sitter/api.h"
+#include "libcc.h"
 
 #include "sddebug.h"
 #include "sdconfig.h"
