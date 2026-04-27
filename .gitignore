@@ -1,9 +1,6 @@
-# Build System Artifacts
-/build
-
-# Compilation Artifacts
 *.o
 *.d
 *.a
 *.dll
 *.exe
+*.d
