@@ -12,6 +12,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <dirent.h>
 
 #include "tree_sitter/api.h"
 #include "libcc.h"
@@ -19,6 +20,7 @@
 #include "sddebug.h"
 #include "sdconfig.h"
 #include "sdstring.h"
+#include "sdmodes.h"
 
 #if !defined(SD_VERSION) || !defined(SD_DESCRIPTION) || !defined(SD_DOCS)
 #error SD_VERSION, SD_DESCRIPTION, or SD_DOCS are not defined!
@@ -77,7 +79,9 @@ int32_t sd_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
             }
 
             cfg->args[0] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
+            SD_DEBUG_LOGF("diff ARG[0] = '%.*s'", SD_STRING_FORMAT(cfg->args[0]));
             cfg->args[1] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
+            SD_DEBUG_LOGF("diff ARG[1] = '%.*s'", SD_STRING_FORMAT(cfg->args[1]));
         }
         else if (strcmp(argv[arg], "analyse") == 0) {
             cfg->mode = SD_MODE_ANALYSE;
@@ -88,6 +92,7 @@ int32_t sd_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
             }
 
             cfg->args[0] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
+            SD_DEBUG_LOGF("analyse ARG[0] = '%.*s'", SD_STRING_FORMAT(cfg->args[0]));
         }
         else if (strcmp(argv[arg], "lint") == 0) {
             cfg->mode = SD_MODE_LINT;
@@ -98,6 +103,7 @@ int32_t sd_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
             }
 
             cfg->args[0] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
+            SD_DEBUG_LOGF("lint ARG[0] = '%.*s'", SD_STRING_FORMAT(cfg->args[0]));
         }
         else if (strcmp(argv[arg], "register") == 0) {
             cfg->mode = SD_MODE_REGISTER;
@@ -108,7 +114,9 @@ int32_t sd_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
             }
 
             cfg->args[0] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
+            SD_DEBUG_LOGF("register ARG[0] = '%.*s'", SD_STRING_FORMAT(cfg->args[0]));
             cfg->args[1] = (SD_StringView) { strlen(argv[++arg]), argv[arg] };
+            SD_DEBUG_LOGF("register ARG[1] = '%.*s'", SD_STRING_FORMAT(cfg->args[1]));
         }
 
         // options
@@ -160,8 +168,41 @@ int32_t sd_exec(const SD_Config *cfg) {
         fprintf(stdout, "v%s\n", SD_VERSION);
         goto short_circuit;
     } else if ((cfg->options & SD_OPTION_LIST_LANGUAGES) != 0) {
-        fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m '--list-languages' option not implemented (TODO)\n", SD_STRING_FORMAT(cfg->exec));
-        status = EXIT_FAILURE;
+        struct dirent *entry;
+        DIR *dir = opendir("languages");
+        if (dir == NULL) {
+            printf("%.*s: no languages registered\n", SD_STRING_FORMAT(cfg->exec));
+            status = EXIT_SUCCESS;
+            goto short_circuit;
+        }
+
+        size_t amount = 0;
+        while ((entry = readdir(dir)) != NULL) {
+            char *dot = strrchr(entry->d_name, '.');
+            if (dot == NULL || strcmp(dot+1, CC_SHARED_LIB_EXT) != 0) {
+                continue;
+            }
+            amount++;
+        }
+
+        rewinddir(dir);
+
+        if (amount > 0) {
+            printf("%.*s: registered languages: \033[1;32m%lld\x1b[0m\n", SD_STRING_FORMAT(cfg->exec), amount);
+            while ((entry = readdir(dir)) != NULL) {
+                char *dot = strrchr(entry->d_name, '.');
+                if (dot == NULL || strcmp(dot+1, CC_SHARED_LIB_EXT) != 0) {
+                    continue;
+                }
+
+                SD_StringView file_view = { strlen(entry->d_name) - 4, entry->d_name };
+                printf(" - %.*s\n", SD_STRING_FORMAT(file_view));
+            }
+        }
+
+        closedir(dir);
+
+        status = EXIT_SUCCESS;
         goto short_circuit;
     }
 
@@ -183,8 +224,7 @@ int32_t sd_exec(const SD_Config *cfg) {
             status = EXIT_FAILURE;
             break;
         case SD_MODE_REGISTER:
-            fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m 'register' mode not implemented (TODO)\n", SD_STRING_FORMAT(cfg->exec));
-            status = EXIT_FAILURE;
+            status = sd_mode_register(cfg);
             break;
     }
 
