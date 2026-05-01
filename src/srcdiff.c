@@ -48,7 +48,7 @@
 void sd_strip_ext(const char *file, SD_StringView *view) {
     assert(file != NULL); assert(strlen(file) != 0);
 
-    view->buf    = file;
+    view->bytes  = file;
     view->length = strlen(file);
     for (size_t pos = view->length - 1; pos != 0; pos--) {
         if (file[pos] == '.') {
@@ -213,15 +213,15 @@ int32_t sd_exec(const SD_Config *cfg) {
             break;
         case SD_MODE_DIFF:
             fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m 'diff' mode not implemented (TODO)\n", SD_STRING_FORMAT(cfg->exec));
-            status = EXIT_FAILURE;
+            status = EXIT_FAILURE; // sd_mode_diff(cfg);
             break;
         case SD_MODE_ANALYSE:
             fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m 'analyse' mode not implemented (TODO)\n", SD_STRING_FORMAT(cfg->exec));
-            status = EXIT_FAILURE;
+            status = EXIT_FAILURE; // sd_mode_analyse(cfg);
             break;
         case SD_MODE_LINT:
             fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m 'lint' mode not implemented (TODO)\n", SD_STRING_FORMAT(cfg->exec));
-            status = EXIT_FAILURE;
+            status = EXIT_FAILURE; // sd_mode_lint(cfg);
             break;
         case SD_MODE_REGISTER:
             status = sd_mode_register(cfg);

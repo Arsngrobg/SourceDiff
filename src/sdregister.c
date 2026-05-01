@@ -25,7 +25,7 @@ int32_t sd_mode_register(const SD_Config *cfg) {
 
     const SD_StringView *path_view = &cfg->args[1];
     char dirstr[path_view->length + 1];
-    strncpy(dirstr, path_view->buf, path_view->length);
+    strncpy(dirstr, path_view->bytes, path_view->length);
     dirstr[path_view->length] = '\0';
 
     struct dirent *entry;
