@@ -56,10 +56,10 @@ int32_t sd_mode_register(const SD_Config *cfg) {
         return EXIT_FAILURE;
     }
 
-    cc_add_source(cc, "\"%s/parser.c\"", dirstr);
-    cc_add_include_path(cc, "\"%s/tree_sitter\"", dirstr);
+    cc_add_source(cc, "%s/parser.c", dirstr);
+    cc_add_include_path(cc, "%s/tree_sitter", dirstr);
     if (has_scanner) {
-        cc_add_source(cc, "\"%s/scanner.c\"", dirstr);
+        cc_add_source(cc, "%s/scanner.c", dirstr);
     }
 
     // UGLY: bit clunky right now
