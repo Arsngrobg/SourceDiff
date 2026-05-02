@@ -27,7 +27,7 @@ SRCDIFF_STATIC := $(LIBDUMP)/lib$(NAME).a
 SRCDIFF_EXEC   := $(BINDUMP)/$(NAME)$(EXEXT)
 
 # COMPILER CONFIGURATION
-override CFLAGS += -DNDEBUG
+override CFLAGS += #-DNDEBUG
 override CFLAGS += -O2
 override CFLAGS += -MMD -MP
 override CFLAGS += -DSD_VERSION=\"$(VERSION)\" -DSD_DESCRIPTION="\"$(DESCRIPTION)\"" -DSD_DOCS="\"$(DOCS)\""
@@ -72,7 +72,7 @@ install: $(SRCDIFF_EXEC) | $(DESTDIR)/licenses/
 
 run: install
 	@$(CLEAR)
-	-@cd $(DESTDIR) && $(NAME)$(EXEXT) $(ARGV)
+	-@cd $(DESTDIR) && $(NAME) $(ARGV)
 
 clean:
 	@$(LOG) Purging $(BUILDDIR) directory

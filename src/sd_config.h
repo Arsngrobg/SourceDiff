@@ -14,8 +14,6 @@
 
 #include <stdint.h>
 
-#include "sd_string.h"
-
 // The modes of SourceDiff
 typedef enum {
     SD_MODE_NONE     = 0, // ./srcdiff          ...
@@ -40,9 +38,9 @@ typedef uint8_t SD_OptionSet;
 
 // The configuration of SourceDiff
 typedef struct {
-    SD_StringView exec;    // the name of the executable hosting SourceDiff
-    SD_StringView args[2]; // the regular arguments supplied to the application
-    SD_StringView output;  // the output file
+    const char   *exec;    // the name of the executable hosting SourceDiff
+    const char   *args[2]; // the regular arguments supplied to the application
+    const char   *output;  // the output file
     SD_Mode       mode;    // the set mode
     SD_OptionSet  options; // the global options
 } SD_Config;

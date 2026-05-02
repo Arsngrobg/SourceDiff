@@ -23,15 +23,12 @@
 int32_t sd_mode_register(const SD_Config *cfg) {
     assert(cfg != NULL); assert(cfg->mode == SD_MODE_REGISTER);
 
-    const SD_StringView *path_view = &cfg->args[1];
-    char dirstr[path_view->length + 1];
-    strncpy(dirstr, path_view->bytes, path_view->length);
-    dirstr[path_view->length] = '\0';
+    const char *dirstr = cfg->args[1];
 
     struct dirent *entry;
     DIR *dir = opendir(dirstr);
     if (dir == NULL) {
-        fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m directory does not exist\n", SD_STRING_FORMAT(cfg->exec));
+        fprintf(stderr, "%s: \x1b[1;31merror:\x1b[0m directory does not exist\n", cfg->exec);
         return EXIT_FAILURE;
     }
 
@@ -50,7 +47,7 @@ int32_t sd_mode_register(const SD_Config *cfg) {
 
     // the default setup for a tree-sitter grammar
     if (!has_include && !has_parser) {
-        fprintf(stderr, "%.*s: \x1b[1;31merror:\x1b[0m does not match conventional tree-sitter grammar structure\n", SD_STRING_FORMAT(cfg->exec));
+        fprintf(stderr, "%s: \x1b[1;31merror:\x1b[0m does not match conventional tree-sitter grammar structure\n", cfg->exec);
         return EXIT_FAILURE;
     }
 
@@ -68,7 +65,7 @@ int32_t sd_mode_register(const SD_Config *cfg) {
     // UGLY: bit clunky right now
     mkdir("languages");
     cc_set_output_type(cc, CC_OUTPUT_SHARED);
-    cc_set_output(cc, "languages/%.*s.dll", SD_STRING_FORMAT(cfg->args[0]));
+    cc_set_output(cc, "languages/%s.dll", cfg->args[0]);
     cc_invoke(cc);
 
     SD_DEBUG_LOGF("INVOKED COMMAND: %s", cc_render_command(cc));
