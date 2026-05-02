@@ -13,7 +13,7 @@
 
 #include <stdint.h>
 
-#include "sdconfig.h"
+#include "sd_config.h"
 
 int32_t sd_mode_diff    (const SD_Config *cfg);
 int32_t sd_mode_lint    (const SD_Config *cfg);

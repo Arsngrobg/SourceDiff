@@ -17,10 +17,10 @@
 #include "tree_sitter/api.h"
 #include "libcc.h"
 
-#include "sddebug.h"
-#include "sdconfig.h"
-#include "sdstring.h"
-#include "sdmodes.h"
+#include "sd_debug.h"
+#include "sd_config.h"
+#include "sd_string.h"
+#include "sd_modes.h"
 
 #if !defined(SD_VERSION) || !defined(SD_DESCRIPTION) || !defined(SD_DOCS)
 #error SD_VERSION, SD_DESCRIPTION, or SD_DOCS are not defined!

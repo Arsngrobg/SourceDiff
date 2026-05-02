@@ -17,8 +17,8 @@
 
 #include "libcc.h"
 
-#include "sdmodes.h"
-#include "sddebug.h"
+#include "sd_modes.h"
+#include "sd_debug.h"
 
 int32_t sd_mode_register(const SD_Config *cfg) {
     assert(cfg != NULL); assert(cfg->mode == SD_MODE_REGISTER);

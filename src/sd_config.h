@@ -14,7 +14,7 @@
 
 #include <stdint.h>
 
-#include "sdstring.h"
+#include "sd_string.h"
 
 // The modes of SourceDiff
 typedef enum {
