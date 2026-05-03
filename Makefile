@@ -27,6 +27,7 @@ SRCDIFF_STATIC := $(LIBDUMP)/lib$(NAME).a
 SRCDIFF_EXEC   := $(BINDUMP)/$(NAME)$(EXEXT)
 
 # COMPILER CONFIGURATION
+override CFLAGS += -Iinclude
 override CFLAGS += #-DNDEBUG
 override CFLAGS += -O2
 override CFLAGS += -MMD -MP
