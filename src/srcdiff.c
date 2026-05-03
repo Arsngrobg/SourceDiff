@@ -44,7 +44,7 @@
     "\n"                                                                                      \
     "For more information: "SD_DOCS"\n"
 
-int32_t sd_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
+int32_t SD_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
     assert(argc >= 0); assert(argv != NULL);
 
     int32_t status = EXIT_SUCCESS;
@@ -134,7 +134,7 @@ int32_t sd_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
     return status;
 }
 
-int32_t sd_exec(const SD_Config *cfg) {
+int32_t SD_exec(const SD_Config *cfg) {
     assert(cfg != NULL);
 
     int32_t status = EXIT_SUCCESS;
@@ -199,18 +199,18 @@ int32_t sd_exec(const SD_Config *cfg) {
             break;
         case SD_MODE_DIFF:
             fprintf(stderr, "%s: \x1b[1;31merror:\x1b[0m 'diff' mode not implemented (TODO)\n", cfg->exec);
-            status = EXIT_FAILURE; // sd_mode_diff(cfg);
+            status = EXIT_FAILURE; // SD_mode_diff(cfg);
             break;
         case SD_MODE_ANALYSE:
             fprintf(stderr, "%s: \x1b[1;31merror:\x1b[0m 'analyse' mode not implemented (TODO)\n", cfg->exec);
-            status = EXIT_FAILURE; // sd_mode_analyse(cfg);
+            status = EXIT_FAILURE; // SD_mode_analyse(cfg);
             break;
         case SD_MODE_LINT:
             fprintf(stderr, "%s: \x1b[1;31merror:\x1b[0m 'lint' mode not implemented (TODO)\n", cfg->exec);
-            status = EXIT_FAILURE; // sd_mode_lint(cfg);
+            status = EXIT_FAILURE; // SD_mode_lint(cfg);
             break;
         case SD_MODE_REGISTER:
-            status = sd_mode_register(cfg);
+            status = SD_mode_register(cfg);
             break;
     }
 
@@ -220,5 +220,5 @@ short_circuit:
 
 int32_t main(int32_t argc, const char *argv[]) {
     SD_Config cfg;
-    return sd_parse_args(argc, argv, &cfg) | sd_exec(&cfg);
+    return SD_parse_args(argc, argv, &cfg) | SD_exec(&cfg);
 }

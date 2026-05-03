@@ -20,7 +20,7 @@
 #include "sd_modes.h"
 #include "sd_debug.h"
 
-int32_t sd_mode_register(const SD_Config *cfg) {
+int32_t SD_mode_register(const SD_Config *cfg) {
     assert(cfg != NULL); assert(cfg->mode == SD_MODE_REGISTER);
 
     const char *dirstr = cfg->args[1];
