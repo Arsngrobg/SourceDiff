@@ -1,0 +1,24 @@
+//      ▄▄▄▄                        ▄▄▄▄▄        ██        ▄▄▄▄      ▄▄▄▄
+//    ▄█▀▀▀▀█                       ██▀▀▀██      ▀▀       ██▀▀▀     ██▀▀▀
+//    ██▄        ██▄████   ▄█████▄  ██    ██   ████     ███████   ███████
+//     ▀████▄    ██▀      ██▀    ▀  ██    ██     ██       ██        ██
+//         ▀██   ██       ██        ██    ██     ██       ██        ██
+//    █▄▄▄▄▄█▀   ██       ▀██▄▄▄▄█  ██▄▄▄██   ▄▄▄██▄▄▄    ██        ██
+//    ▀▀▀▀▀     ▀▀         ▀▀▀▀▀   ▀▀▀▀▀     ▀▀▀▀▀▀▀▀    ▀▀        ▀▀
+//
+//   features enabled by not including the NDEBUG symbol during compilation.
+
+#ifndef SDDEBUG_H
+#define SDDEBUG_H
+
+#include <assert.h> // standard assertions too
+
+#ifndef NDEBUG
+#define SD_DEBUG_LOGF(fmt, ...) printf("[DEBUG] "fmt"\n", ##__VA_ARGS__)
+#define SD_DEBUG_LOG(str)       printf("[DEBUG] "str"\n")
+#else
+#define SD_DEBUG_LOGF(fmt, ...)
+#define SD_DEBUG_LOG(str)
+#endif // NDEBUG
+
+#endif // SDDEBUG_H
