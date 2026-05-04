@@ -25,23 +25,23 @@
 #error SD_VERSION, SD_DESCRIPTION, or SD_DOCS are not defined!
 #endif // !defined(SD_VERSION) || !defined(SD_DESCRIPTION) || !defined(SD_DOCS)
 
-#define SD_HELP_STRING                                                                        \
-    "SourceDiff v"SD_VERSION" - "SD_DESCRIPTION"\n"                                           \
-    "Copyright (c) 2025 James Armstrong (Arsngrobg)\n"                                        \
-    "\n"                                                                                      \
-    "Usage:\n"                                                                                \
-    "  %s diff     <file> <file>   The difference between both files\n"                       \
-    "  %s analyse  <glob>          Structural analysis of the files which match the glob\n"   \
-    "  %s lint     <glob>          Style analysis of the files which match the glob\n"        \
-    "  %s register <name> <dir>    Registers a new language (C compiler required)\n"          \
-    "\n"                                                                                      \
-    "Options:\n"                                                                              \
-    "  --help             Display this information\n"                                         \
-    "  --version          Display version information for SourceDiff\n"                       \
-    "  --list-languages   Lists all registered language parsers\n"                            \
-    "  -v                 Display diagnostics during analysis\n"                              \
-    "  -o <file>          Output digestible, structured analysis results to the <file>\n"     \
-    "\n"                                                                                      \
+#define SD_HELP_STRING                                                                      \
+    "SourceDiff v"SD_VERSION" - "SD_DESCRIPTION"\n"                                         \
+    "Copyright (c) 2025 James Armstrong (Arsngrobg)\n"                                      \
+    "\n"                                                                                    \
+    "Usage:\n"                                                                              \
+    "  %s diff     <file> <file>   The difference between both files\n"                     \
+    "  %s analyse  <glob>          Structural analysis of the files which match the glob\n" \
+    "  %s lint     <glob>          Style analysis of the files which match the glob\n"      \
+    "  %s register <name> <dir>    Registers a new language (C compiler required)\n"        \
+    "\n"                                                                                    \
+    "Options:\n"                                                                            \
+    "  --help             Display this information\n"                                       \
+    "  --version          Display version information for SourceDiff\n"                     \
+    "  --list-languages   Lists all registered language parsers\n"                          \
+    "  -v                 Display diagnostics during analysis\n"                            \
+    "  -o <file>          Output digestible, structured analysis results to the <file>\n"   \
+    "\n"                                                                                    \
     "For more information: "SD_DOCS"\n"
 
 int32_t SD_parse_args(int32_t argc, const char *argv[], SD_Config *cfg) {
@@ -144,10 +144,7 @@ int32_t SD_exec(const SD_Config *cfg) {
         fprintf(
             stdout,
             SD_HELP_STRING,
-            cfg->exec,
-            cfg->exec,
-            cfg->exec,
-            cfg->exec
+            cfg->exec, cfg->exec, cfg->exec, cfg->exec
         );
         goto short_circuit;
     } else if ((cfg->options & SD_OPTION_VERSION) != 0) {
