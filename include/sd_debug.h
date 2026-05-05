@@ -6,19 +6,23 @@
 //    █▄▄▄▄▄█▀   ██       ▀██▄▄▄▄█  ██▄▄▄██   ▄▄▄██▄▄▄    ██        ██
 //    ▀▀▀▀▀     ▀▀         ▀▀▀▀▀   ▀▀▀▀▀     ▀▀▀▀▀▀▀▀    ▀▀        ▀▀
 //
-//   features enabled by not including the NDEBUG symbol during compilation.
+//   Debugging macros used in debug builds
 
-#ifndef SDDEBUG_H
-#define SDDEBUG_H
+#ifndef SD_DEBUG_H
+#define SD_DEBUG_H
 
-#include <assert.h> // standard assertions too
+// this header includes useful macros for debugging:
+// - SD_LOG(fmt, ...): a logging macro, contains function it was instered into
+// - SD_UNUSED(o):     explict declaration of an unused variable (bypass -Wunused)
 
 #ifndef NDEBUG
-#define SD_DEBUG_LOGF(fmt, ...) printf("[DEBUG] "fmt"\n", ##__VA_ARGS__)
-#define SD_DEBUG_LOG(str)       printf("[DEBUG] "str"\n")
+#include <assert.h>
+#include <stdio.h>
+#define SD_LOG(fmt, ...) printf("[DEBUG::%s] "fmt"\n", __func__, ##__VA_ARGS__)
+#define SD_UNUSED(o)     ((void)o)
 #else
-#define SD_DEBUG_LOGF(fmt, ...)
-#define SD_DEBUG_LOG(str)
+#define SD_LOG(fmt, ...)
+#define SD_UNUSED(str)
 #endif // NDEBUG
 
-#endif // SDDEBUG_H
+#endif // SD_DEBUG_H
