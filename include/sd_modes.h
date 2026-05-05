@@ -8,16 +8,14 @@
 //
 //   The modes of SourceDiff.
 
-#ifndef SDMODES_H
-#define SDMODES_H
+#ifndef SD_MODES_H
+#define SD_MODES_H
 
 #include <stdint.h>
 
-#include "sd_config.h"
+int32_t SD_ExecDiff    (void); // Executes the DIFF mode on two files
+int32_t SD_ExecLint    (void); // Executes the LINT mode on the glob
+int32_t SD_ExecAnalyse (void); // Executes the ANALYSE mode on the glob
+int32_t SD_ExecRegister(void); // Executes the REGISTER mode which registers a language
 
-int32_t SD_mode_diff    (const SD_Config *cfg);
-int32_t SD_mode_lint    (const SD_Config *cfg);
-int32_t SD_mode_analyse (const SD_Config *cfg);
-int32_t SD_mode_register(const SD_Config *cfg);
-
-#endif // SDMODES_H
+#endif // SD_MODES_H
