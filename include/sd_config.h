@@ -9,10 +9,11 @@
 //   The configuration data of the application through its CLI interface.
 //   It contains the configured state of SourceDiff through its supplied arguments.
 
-#ifndef SDCONFIG_H
-#define SDCONFIG_H
+#ifndef SD_CONFIG_H
+#define SD_CONFIG_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 // The modes of SourceDiff
 typedef enum {
@@ -23,7 +24,7 @@ typedef enum {
     SD_MODE_REGISTER = 4  // ./srcdiff register <name> <dir>
 } SD_Mode;
 
-// The global options of SourceDiff - each representing their bit they configure
+// The global options of SourceDiff - each representing the bit position they configure
 typedef enum {
     SD_OPTION_HELP           = 1 << 0, // ./srcdiff --help
     SD_OPTION_VERSION        = 1 << 1, // ./srcdiff --version
@@ -32,17 +33,14 @@ typedef enum {
     SD_OPTION_OUTPUT         = 1 << 4  // ./srcdiff -o <file> ...
 } SD_Option;
 
-// The bits we use to denote enabled or disabled options
-// 000ovLVH
-typedef uint8_t SD_OptionSet;
+const char  *SD_GetExecName      (void);                             // Gets the name of the executable (argv[0])
+const char **SD_GetCLArgs        (void);                             // Gets the modal arguments
+const char  *SD_GetOutputFileName(void);                             // Gets the name of the output file (NULL if none specified)
+SD_Mode      SD_GetMode          (void);                             // Gets the current mode
+bool         SD_IsOptionEnabled  (SD_Option option);                 // Whether the global boolean option is enabled
+bool         SD_ParseCLArgs      (int32_t argc, const char *argv[]); // Parses the CLI arguments and storing it in a structured global object
+#ifndef NDEBUG
+bool         SD_CLArgsParsed     (void);                             // DEBUG: flag for assertions purposes
+#endif // NDEBUG
 
-// The configuration of SourceDiff
-typedef struct {
-    const char   *exec;    // the name of the executable hosting SourceDiff
-    const char   *args[2]; // the regular arguments supplied to the application
-    const char   *output;  // the output file
-    SD_Mode       mode;    // the set mode
-    SD_OptionSet  options; // the global options
-} SD_Config;
-
-#endif // SDCONFIG_H
+#endif // SD_CONFIG_H
