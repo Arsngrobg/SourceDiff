@@ -31,7 +31,7 @@ int32_t SD_ExecRegister(void) {
     struct dirent *entry;
     DIR *dir = opendir(dirstr);
     if (dir == NULL) {
-        fprintf(stderr, "%s: \x1b[1;31merror:\x1b[0m directory does not exist\n", SD_GetExecName());
+        SD_LogDebug("directory does not exist");
         return EXIT_FAILURE;
     }
 
@@ -40,20 +40,20 @@ int32_t SD_ExecRegister(void) {
     bool has_scanner = false;
     while ((entry = readdir(dir)) != NULL) {
         if (strcmp(entry->d_name, "parser.c") == 0) {
-            SD_LogDebug("Found parser.c");
+            SD_LogDebug("found parser.c");
             has_parser = true;
         } else if (strcmp(entry->d_name, "scanner.c") == 0) {
-            SD_LogDebug("Found scanner.c");
+            SD_LogDebug("found scanner.c");
             has_scanner = true;
         } else if (strcmp(entry->d_name, "tree_sitter") == 0) {
-            SD_LogDebug("Found tree_sitter directory");
+            SD_LogDebug("found tree_sitter directory");
             has_include = true;
         }
     }
 
     // the default setup for a tree-sitter grammar
     if (!has_include && !has_parser) {
-        fprintf(stderr, "%s: \x1b[1;31merror:\x1b[0m does not match conventional tree-sitter grammar structure\n", SD_GetExecName());
+        SD_LogDebug("does not match conventional tree-sitter grammar structure");
         return EXIT_FAILURE;
     }
 
@@ -69,7 +69,7 @@ int32_t SD_ExecRegister(void) {
     }
 
     if (mkdir(SD_LANGDUMP) == 0) {
-        SD_LogDebug("Created "SD_LANGDUMP" directory");
+        SD_LogDebug("created "SD_LANGDUMP" directory");
     }
 
     cc_set_output_type(cc, CC_OUTPUT_SHARED);
@@ -81,6 +81,6 @@ int32_t SD_ExecRegister(void) {
     cc_delete(cc);
     closedir(dir);
 
-    printf("%s: sucessfully registered language: \x1b[1;32m%s\x1b[0m\n", SD_GetExecName(), SD_GetModeArgs()[0]);
+    SD_Log("sucessfully registered language: \x1b[1;32m%s\x1b[0m\n", SD_GetModeArgs()[0]);
     return EXIT_SUCCESS;
 }
