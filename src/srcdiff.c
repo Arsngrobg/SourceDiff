@@ -57,7 +57,7 @@ int32_t SD_Exec(void) {
         struct dirent *entry;
         DIR *dir = opendir("languages");
         if (dir == NULL) {
-            Sd_Log("no languages registered");
+            SD_Log("no languages registered");
             status = EXIT_SUCCESS;
             goto short_circuit;
         }
