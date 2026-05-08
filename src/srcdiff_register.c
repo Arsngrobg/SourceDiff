@@ -6,8 +6,9 @@
 //    █▄▄▄▄▄█▀   ██       ▀██▄▄▄▄█  ██▄▄▄██   ▄▄▄██▄▄▄    ██        ██
 //    ▀▀▀▀▀     ▀▀         ▀▀▀▀▀   ▀▀▀▀▀     ▀▀▀▀▀▀▀▀    ▀▀        ▀▀
 //
-//   The register mode of SourceDiff.
+//   The register mode
 
+#include <assert.h>
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -17,9 +18,7 @@
 
 #include "libcc.h"
 
-#include "sd_debug.h"
-#include "sd_config.h"
-#include "sd_modes.h"
+#include "srcdiff.h"
 
 #define SD_LANGDUMP "languages"
 
@@ -27,7 +26,7 @@ int32_t SD_ExecRegister(void) {
     assert(SD_CLArgsParsed());
     assert(SD_GetMode() == SD_MODE_REGISTER);
 
-    const char *dirstr = SD_GetCLArgs()[1];
+    const char *dirstr = SD_GetModeArgs()[1];
 
     struct dirent *entry;
     DIR *dir = opendir(dirstr);
@@ -41,13 +40,13 @@ int32_t SD_ExecRegister(void) {
     bool has_scanner = false;
     while ((entry = readdir(dir)) != NULL) {
         if (strcmp(entry->d_name, "parser.c") == 0) {
-            SD_LOG("Found parser.c");
+            SD_LogDebug("Found parser.c");
             has_parser = true;
         } else if (strcmp(entry->d_name, "scanner.c") == 0) {
-            SD_LOG("Found scanner.c");
+            SD_LogDebug("Found scanner.c");
             has_scanner = true;
         } else if (strcmp(entry->d_name, "tree_sitter") == 0) {
-            SD_LOG("Found tree_sitter directory");
+            SD_LogDebug("Found tree_sitter directory");
             has_include = true;
         }
     }
@@ -70,16 +69,18 @@ int32_t SD_ExecRegister(void) {
     }
 
     if (mkdir(SD_LANGDUMP) == 0) {
-        SD_LOG("Created "SD_LANGDUMP" directory");
+        SD_LogDebug("Created "SD_LANGDUMP" directory");
     }
 
     cc_set_output_type(cc, CC_OUTPUT_SHARED);
-    cc_set_output(cc, SD_LANGDUMP"/%s."CC_SHARED_LIB_EXT, SD_GetCLArgs()[0]);
+    cc_set_output(cc, SD_LANGDUMP"/%s."CC_SHARED_LIB_EXT, SD_GetModeArgs()[0]);
     cc_invoke(cc);
 
-    SD_LOG("INVOKED COMMAND: %s", cc_render_command(cc));
+    SD_LogDebug("INVOKED COMMAND: %s", cc_render_command(cc));
 
     cc_delete(cc);
     closedir(dir);
+
+    printf("%s: sucessfully registered language: \x1b[1;32m%s\x1b[0m\n", SD_GetExecName(), SD_GetModeArgs()[0]);
     return EXIT_SUCCESS;
 }

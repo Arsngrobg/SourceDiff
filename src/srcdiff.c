@@ -6,15 +6,14 @@
 //    █▄▄▄▄▄█▀   ██       ▀██▄▄▄▄█  ██▄▄▄██   ▄▄▄██▄▄▄    ██        ██
 //    ▀▀▀▀▀     ▀▀         ▀▀▀▀▀   ▀▀▀▀▀     ▀▀▀▀▀▀▀▀    ▀▀        ▀▀
 //
-//   The main application.
+//   The main driver of the application
 
+#include <assert.h>
 #include <string.h>
-#include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
+#include <stdlib.h>
 #include <dirent.h>
 
-#include "tree_sitter/api.h"
 #include "libcc.h"
 
 #include "srcdiff.h"
@@ -48,17 +47,17 @@ int32_t SD_Exec(void) {
     int32_t status = EXIT_SUCCESS;
 
     // these arguments have higher priority
-    if (SD_IsOptionEnabled(SD_OPTION_HELP)) {
+    if (SD_IsOptionSet(SD_OPTION_HELP)) {
         fprintf(
             stdout,
             SD_HELP_STRING,
             SD_GetExecName(), SD_GetExecName(), SD_GetExecName(), SD_GetExecName()
         );
         goto short_circuit;
-    } else if (SD_IsOptionEnabled(SD_OPTION_VERSION)) {
+    } else if (SD_IsOptionSet(SD_OPTION_VERSION)) {
         fprintf(stdout, "v%s\n", SD_VERSION);
         goto short_circuit;
-    } else if (SD_IsOptionEnabled(SD_OPTION_LIST_LANGUAGES)) {
+    } else if (SD_IsOptionSet(SD_OPTION_LIST_LANGUAGES)) {
         struct dirent *entry;
         DIR *dir = opendir("languages");
         if (dir == NULL) {
@@ -79,7 +78,7 @@ int32_t SD_Exec(void) {
         rewinddir(dir);
 
         if (amount > 0) {
-            printf("%s: registered languages: \033[1;32m%lld\x1b[0m\n", SD_GetExecName(), amount);
+            SD_Log("%s: registered languages: \x1b[1;32m%lld\x1b[0m\n", SD_GetExecName(), amount);
             while ((entry = readdir(dir)) != NULL) {
                 char *dot = strrchr(entry->d_name, '.');
                 if (dot == NULL || strcmp(dot+1, CC_SHARED_LIB_EXT) != 0) {
@@ -99,26 +98,26 @@ int32_t SD_Exec(void) {
 
     switch (SD_GetMode()) {
         case SD_MODE_NONE:
-            fprintf(stderr, "%s: \x1b[1;31merror:\x1b[0m no mode specified\n", SD_GetExecName());
+            SD_LogError("no mode specified");
             status = EXIT_FAILURE;
             break;
         case SD_MODE_DIFF:
-            SD_LOG("Entering DIFF mode");
-            fprintf(stderr, "%s: \x1b[1;31merror:\x1b[0m 'diff' mode not implemented (TODO)\n", SD_GetExecName());
+            SD_LogDebug("Entering DIFF mode");
+            SD_LogError("'diff' mode not implemented (TODO)");
             status = EXIT_FAILURE; // SD_ExecDiff();
             break;
         case SD_MODE_ANALYSE:
-            SD_LOG("Entering ANALYSE mode");
-            fprintf(stderr, "%s: \x1b[1;31merror:\x1b[0m 'analyse' mode not implemented (TODO)\n", SD_GetExecName());
+            SD_LogDebug("Entering ANALYSE mode");
+            SD_LogError("'analyse' mode not implemented (TODO)");
             status = EXIT_FAILURE; // SD_ExecAnalyse();
             break;
         case SD_MODE_LINT:
-        SD_LOG("Entering LINT mode");
-            fprintf(stderr, "%s: \x1b[1;31merror:\x1b[0m 'lint' mode not implemented (TODO)\n", SD_GetExecName());
+            SD_LogDebug("Entering LINT mode");
+            SD_LogError("'lint' mode not implemented (TODO)");
             status = EXIT_FAILURE; // SD_ExecLint();
             break;
         case SD_MODE_REGISTER:
-            SD_LOG("Entering REGISTER mode");
+            SD_LogDebug("Entering REGISTER mode");
             status = SD_ExecRegister();
             break;
     }
@@ -128,8 +127,5 @@ short_circuit:
 }
 
 int32_t main(int32_t argc, const char *argv[]) {
-    if (!SD_ParseCLArgs(argc, argv)) {
-        return EXIT_FAILURE;
-    }
-    return SD_Exec();
+    return SD_ParseCLArgs(argc, argv) ? SD_Exec() : EXIT_FAILURE;
 }

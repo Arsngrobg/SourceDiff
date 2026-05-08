@@ -6,14 +6,10 @@
 //    █▄▄▄▄▄█▀   ██       ▀██▄▄▄▄█  ██▄▄▄██   ▄▄▄██▄▄▄    ██        ██
 //    ▀▀▀▀▀     ▀▀         ▀▀▀▀▀   ▀▀▀▀▀     ▀▀▀▀▀▀▀▀    ▀▀        ▀▀
 //
-//   The configuration data of the application through its CLI interface.
-//   It contains the configured state of SourceDiff through its supplied arguments.
+//   Global type definitions
 
-#ifndef SD_CONFIG_H
-#define SD_CONFIG_H
-
-#include <stdint.h>
-#include <stdbool.h>
+#ifndef SRCDIFF_TYPES_H
+#define SRCDIFF_TYPES_H
 
 // The modes of SourceDiff
 typedef enum {
@@ -33,14 +29,4 @@ typedef enum {
     SD_OPTION_OUTPUT         = 1 << 4  // ./srcdiff -o <file> ...
 } SD_Option;
 
-const char  *SD_GetExecName      (void);                             // Gets the name of the executable (argv[0])
-const char **SD_GetCLArgs        (void);                             // Gets the modal arguments
-const char  *SD_GetOutputFileName(void);                             // Gets the name of the output file (NULL if none specified)
-SD_Mode      SD_GetMode          (void);                             // Gets the current mode
-bool         SD_IsOptionEnabled  (SD_Option option);                 // Whether the global boolean option is enabled
-bool         SD_ParseCLArgs      (int32_t argc, const char *argv[]); // Parses the CLI arguments and storing it in a structured global object
-#ifndef NDEBUG
-bool         SD_CLArgsParsed     (void);                             // DEBUG: flag for assertions purposes
-#endif // NDEBUG
-
-#endif // SD_CONFIG_H
+#endif // SRCDIFF_TYPES_H
