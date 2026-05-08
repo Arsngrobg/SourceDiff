@@ -48,11 +48,7 @@ int32_t SD_Exec(void) {
 
     // these arguments have higher priority
     if (SD_IsOptionSet(SD_OPTION_HELP)) {
-        fprintf(
-            stdout,
-            SD_HELP_STRING,
-            SD_GetExecName(), SD_GetExecName(), SD_GetExecName(), SD_GetExecName()
-        );
+        SD_Log(SD_HELP_STRING, SD_GetExecName(), SD_GetExecName(), SD_GetExecName(), SD_GetExecName());
         goto short_circuit;
     } else if (SD_IsOptionSet(SD_OPTION_VERSION)) {
         fprintf(stdout, "v%s\n", SD_VERSION);
@@ -61,7 +57,7 @@ int32_t SD_Exec(void) {
         struct dirent *entry;
         DIR *dir = opendir("languages");
         if (dir == NULL) {
-            printf("%s: no languages registered\n", SD_GetExecName());
+            Sd_Log("no languages registered");
             status = EXIT_SUCCESS;
             goto short_circuit;
         }
@@ -78,7 +74,7 @@ int32_t SD_Exec(void) {
         rewinddir(dir);
 
         if (amount > 0) {
-            SD_Log("%s: registered languages: \x1b[1;32m%lld\x1b[0m\n", SD_GetExecName(), amount);
+            SD_Log("registered languages: \x1b[1;32m%lld\x1b[0m\n", amount);
             while ((entry = readdir(dir)) != NULL) {
                 char *dot = strrchr(entry->d_name, '.');
                 if (dot == NULL || strcmp(dot+1, CC_SHARED_LIB_EXT) != 0) {
