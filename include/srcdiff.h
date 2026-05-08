@@ -35,7 +35,7 @@ bool         SD_CLArgsParsed (void);                              // debug asser
 #endif // NDEBUG
 
 // Language LUT
-bool         SD_ValidateLLUT (void);                              // Validates the LLUT
+bool         SD_ValidateLUT  (void);                              // Validates the LUT
 size_t       SD_LangCount    (void);                              // The number of languages with extensions mapped
 size_t       SD_TotalExtCount(void);                              // The total number of extensions mapped
 size_t       SD_ExtCount     (const char *lang_name);             // The number of extensions mapped for to the `lang_name`
