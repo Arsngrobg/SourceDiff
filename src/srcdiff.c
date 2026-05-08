@@ -51,7 +51,7 @@ int32_t SD_Exec(void) {
         SD_Log(SD_HELP_STRING, SD_GetExecName(), SD_GetExecName(), SD_GetExecName(), SD_GetExecName());
         goto short_circuit;
     } else if (SD_IsOptionSet(SD_OPTION_VERSION)) {
-        fprintf(stdout, "v%s\n", SD_VERSION);
+        printf("v%s\n", SD_VERSION);
         goto short_circuit;
     } else if (SD_IsOptionSet(SD_OPTION_LIST_LANGUAGES)) {
         struct dirent *entry;
