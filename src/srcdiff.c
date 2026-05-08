@@ -36,7 +36,7 @@
     "  --help             Display this information\n"                                       \
     "  --version          Display version information for SourceDiff\n"                     \
     "  --list-languages   Lists all registered language parsers\n"                          \
-    "  -v                 Display diagnostics during analysis\n"                            \
+    "  -v                 Display extra information during execution\n"                     \
     "  -o <file>          Output digestible, structured analysis results to the <file>\n"   \
     "\n"                                                                                    \
     "For more information: "SD_DOCS"\n"
