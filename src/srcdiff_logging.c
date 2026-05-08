@@ -64,6 +64,7 @@ void SD_LogDebug(const char *fmt, ...) {
 
     printf("%s: \x1b[36mdebug:\x1b[0m %s\n", SD_GetExecName(), buffer);
 #else
+    ((void)fmt);
     return;
 #endif // NDEBUG
 }
