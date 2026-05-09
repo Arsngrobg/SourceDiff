@@ -23,8 +23,7 @@
 #define SD_LANGDUMP "languages"
 
 int32_t SD_ExecRegister(void) {
-    assert(SD_CLArgsParsed());
-    assert(SD_GetMode() == SD_MODE_REGISTER);
+    assert(SD_CLArgsParsed() && SD_GetMode() == SD_MODE_REGISTER);
 
     const char *dirstr = SD_GetModeArgs()[1];
 
@@ -53,7 +52,7 @@ int32_t SD_ExecRegister(void) {
 
     // the default setup for a tree-sitter grammar
     if (!has_include && !has_parser) {
-        SD_LogDebug("does not match conventional tree-sitter grammar structure");
+        SD_LogError("does not match conventional tree-sitter grammar structure");
         return EXIT_FAILURE;
     }
 
