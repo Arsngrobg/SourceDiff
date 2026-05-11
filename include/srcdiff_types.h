@@ -13,11 +13,18 @@
 
 // The modes of SourceDiff
 typedef enum {
-    SD_MODE_NONE     = 0, // ./srcdiff          ...
-    SD_MODE_DIFF     = 1, // ./srcdiff diff     <file> <file>
-    SD_MODE_ANALYSE  = 2, // ./srcdiff analyse  <dir>
-    SD_MODE_LINT     = 3, // ./srcdiff lint     <dir>
-    SD_MODE_REGISTER = 4  // ./srcdiff register <name> <dir>
+    // Operational Modes
+    SD_MODE_NONE,           // ./srcdiff               ...
+    SD_MODE_DIFF,           // ./srcdiff diff          <file>    <file>
+    SD_MODE_ANALYSE,        // ./srcdiff analyse       <dir>
+    SD_MODE_LINT,           // ./srcdiff lint          <dir>
+    SD_MODE_REGISTER,       // ./srcdiff register      <name>    <dir>
+
+    // LUT Configuration Modes
+    SD_MODE_LUT_VALIDATE,   // ./srcdiff lut validate
+    SD_MODE_LUT_INVALIDATE, // ./srcdiff lut invalidate
+    SD_MODE_LUT_SET,        // ./srcdiff lut set        <config>
+    SD_MODE_LUT_ADD         // ./srcdiff lut add        <config>
 } SD_Mode;
 
 // The global options of SourceDiff - each representing the bit position they configure
