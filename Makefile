@@ -34,8 +34,6 @@ override CFLAGS += -MMD -MP
 override CFLAGS += -DSD_VERSION=\"$(VERSION)\" -DSD_DESCRIPTION="\"$(DESCRIPTION)\"" -DSD_DOCS="\"$(DOCS)\""
 
 # RECIPES
--include $(SRCDIFF_D)
-
 $(SRCDIFF_EXEC): $(SRCDIFF_STATIC) $(TREE-SITTER_STATIC) $(LIBCC_STATIC) | $(BINDUMP)/
 	@$(LOG) Bundling $(NAME)$(EXEXT)
 	@$(CC) $^ -o $@
@@ -47,6 +45,8 @@ $(SRCDIFF_STATIC): $(SRCDIFF_O) | $(LIBDUMP)/
 $(OBJDUMP)/%.o: $(SRCDIFF_PREFIX)%.c | $(OBJDUMP)/
 	@$(LOG) Compiling $<
 	@$(CC) $(CFLAGS) -c $< -o $@
+
+-include $(SRCDIFF_D)
 
 #     ,────────.              ,──.
 #     '──.  .──',──,──. ,───. │  │,─.  ,───.
