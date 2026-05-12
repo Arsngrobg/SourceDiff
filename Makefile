@@ -20,7 +20,7 @@ DOCS           := https://github.com/Arsngrobg/SourceDiff\#building-from-source
 
 # FILES
 SRCDIFF_PREFIX := src/
-SRCDIFF_C      := $(wildcard $(SRCDIFF_PREFIX)*.c)
+SRCDIFF_C      := $(wildcard $(SRCDIFF_PREFIX)*.c) $(wildcard $(SRCDIFF_PREFIX)/commands/*.c)
 SRCDIFF_O      := $(addprefix $(OBJDUMP)/,$(notdir $(SRCDIFF_C:.c=.o)))
 SRCDIFF_D      := $(SRCDIFF_O:.o=.d)
 SRCDIFF_STATIC := $(LIBDUMP)/lib$(NAME).a
@@ -28,7 +28,7 @@ SRCDIFF_EXEC   := $(BINDUMP)/$(NAME)$(EXEXT)
 
 # COMPILER CONFIGURATION
 override CFLAGS += -Iinclude
-override CFLAGS += #-DNDEBUG
+override CFLAGS += -DNDEBUG
 override CFLAGS += -O2
 override CFLAGS += -MMD -MP
 override CFLAGS += -DSD_VERSION=\"$(VERSION)\" -DSD_DESCRIPTION="\"$(DESCRIPTION)\"" -DSD_DOCS="\"$(DOCS)\""
@@ -43,6 +43,10 @@ $(SRCDIFF_STATIC): $(SRCDIFF_O) | $(LIBDUMP)/
 	@$(AR) $(ARFLAGS) $@ $^
 
 $(OBJDUMP)/%.o: $(SRCDIFF_PREFIX)%.c | $(OBJDUMP)/
+	@$(LOG) Compiling $<
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDUMP)/%.o: $(SRCDIFF_PREFIX)/commands/%.c | $(OBJDUMP)/
 	@$(LOG) Compiling $<
 	@$(CC) $(CFLAGS) -c $< -o $@
 

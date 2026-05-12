@@ -1,57 +1,58 @@
-//      ▄▄▄▄                        ▄▄▄▄▄        ██        ▄▄▄▄      ▄▄▄▄
-//    ▄█▀▀▀▀█                       ██▀▀▀██      ▀▀       ██▀▀▀     ██▀▀▀
-//    ██▄        ██▄████   ▄█████▄  ██    ██   ████     ███████   ███████
-//     ▀████▄    ██▀      ██▀    ▀  ██    ██     ██       ██        ██
-//         ▀██   ██       ██        ██    ██     ██       ██        ██
-//    █▄▄▄▄▄█▀   ██       ▀██▄▄▄▄█  ██▄▄▄██   ▄▄▄██▄▄▄    ██        ██
-//    ▀▀▀▀▀     ▀▀         ▀▀▀▀▀   ▀▀▀▀▀     ▀▀▀▀▀▀▀▀    ▀▀        ▀▀
-//
-//   The main driver of the application
-
 #include <assert.h>
-#include <string.h>
-#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <dirent.h>
 
 #include "libcc.h"
 
-#include "srcdiff.h"
+#include "logging.h"
+#include "argv.h"
+#include "commands.h"
 
 #if !defined(SD_VERSION) || !defined(SD_DESCRIPTION) || !defined(SD_DOCS)
 #error SD_VERSION, SD_DESCRIPTION, or SD_DOCS are not defined!
 #endif // !defined(SD_VERSION) || !defined(SD_DESCRIPTION) || !defined(SD_DOCS)
 
-#define SD_HELP_STRING                                                                      \
-    "SourceDiff v"SD_VERSION" - "SD_DESCRIPTION"\n"                                         \
-    "Copyright (c) 2025 James Armstrong (Arsngrobg)\n"                                      \
-    "\n"                                                                                    \
-    "Usage:\n"                                                                              \
-    "  %s diff     <file> <file>   The difference between both files\n"                     \
-    "  %s analyse  <glob>          Structural analysis of the files which match the glob\n" \
-    "  %s lint     <glob>          Style analysis of the files which match the glob\n"      \
-    "  %s register <name> <dir>    Registers a new language (C compiler required)\n"        \
-    "\n"                                                                                    \
-    "Options:\n"                                                                            \
-    "  --help             Display this information\n"                                       \
-    "  --version          Display version information for SourceDiff\n"                     \
-    "  --list-languages   Lists all registered language parsers\n"                          \
-    "  -v                 Display extra information during execution\n"                     \
-    "  -o <file>          Output digestible, structured analysis results to the <file>\n"   \
-    "\n"                                                                                    \
+#define SD_HELP_STRING                                                                       \
+    "SourceDiff v"SD_VERSION" - "SD_DESCRIPTION"\n"                                          \
+    "Copyright (c) 2025 James Armstrong (Arsngrobg)\n"                                       \
+    "\n"                                                                                     \
+    "Usage:\n"                                                                               \
+    "  %s diff     <file> <file>   The difference between both files\n"                      \
+    "  %s analyse  <glob>          Structural analysis of the files which match the glob\n"  \
+    "  %s lint     <glob>          Style analysis of the files which match the glob\n"       \
+    "  %s register <name> <dir>    Registers a new language (C compiler required)\n"         \
+    "\n"                                                                                     \
+    "Lookup Table Configuration:\n"                                                          \
+    "  %s lut init                    Creates a default LUT file if none exists\n"           \
+    "  %s lut [set|add]    <config>   Sets/adds the lookup table entries using the config\n" \
+    "  %s lut [in]validate            Validates/invalidates the lookup table\n"              \
+    "\n"                                                                                     \
+    "Options:\n"                                                                             \
+    "  --help             Display this information\n"                                        \
+    "  --version          Display version information for SourceDiff\n"                      \
+    "  --list-languages   Lists all registered language parsers\n"                           \
+    "  -v                 Display extra information during execution\n"                      \
+    "  -o <file>          Output digestible, structured analysis results to the <file>\n"    \
+    "\n"                                                                                     \
     "For more information: "SD_DOCS"\n"
 
 int32_t SD_Exec(void) {
-    assert(SD_CLArgsParsed());
+    assert(SD_IsArvParsed());
 
     int32_t status = EXIT_SUCCESS;
 
     // these arguments have higher priority
     if (SD_IsOptionSet(SD_OPTION_HELP)) {
-        SD_Log(SD_HELP_STRING, SD_GetExecName(), SD_GetExecName(), SD_GetExecName(), SD_GetExecName());
+        const char *exec_name = SD_GetExecName();
+        fprintf(stdout,
+            SD_HELP_STRING,
+            exec_name, exec_name, exec_name, exec_name,
+            exec_name, exec_name, exec_name
+        );
         goto short_circuit;
     } else if (SD_IsOptionSet(SD_OPTION_VERSION)) {
-        printf("v%s\n", SD_VERSION);
+        fprintf(stdout, "v%s\n", SD_VERSION);
         goto short_circuit;
     } else if (SD_IsOptionSet(SD_OPTION_LIST_LANGUAGES)) {
         struct dirent *entry;
@@ -74,7 +75,7 @@ int32_t SD_Exec(void) {
         rewinddir(dir);
 
         if (amount > 0) {
-            SD_Log("registered languages: \x1b[1;32m%lld\x1b[0m\n", amount);
+            SD_Log("registered languages: " ANSI_INFO "%lld" ANSI_RESET, amount);
             while ((entry = readdir(dir)) != NULL) {
                 char *dot = strrchr(entry->d_name, '.');
                 if (dot == NULL || strcmp(dot+1, CC_SHARED_LIB_EXT) != 0) {
@@ -82,7 +83,7 @@ int32_t SD_Exec(void) {
                 }
                 *dot = '\0';
 
-                printf(" - %s\n", entry->d_name);
+                fprintf(stdout, " - %s\n", entry->d_name);
             }
         }
 
@@ -100,21 +101,41 @@ int32_t SD_Exec(void) {
         case SD_MODE_DIFF:
             SD_LogDebug("Entering DIFF mode");
             SD_LogError("'diff' mode not implemented (TODO)");
-            status = EXIT_FAILURE; // SD_ExecDiff();
+            status = EXIT_FAILURE; // SD_Exec_Diff();
             break;
         case SD_MODE_ANALYSE:
             SD_LogDebug("Entering ANALYSE mode");
             SD_LogError("'analyse' mode not implemented (TODO)");
-            status = EXIT_FAILURE; // SD_ExecAnalyse();
+            status = EXIT_FAILURE; // SD_Exec_Analyse();
             break;
         case SD_MODE_LINT:
             SD_LogDebug("Entering LINT mode");
             SD_LogError("'lint' mode not implemented (TODO)");
-            status = EXIT_FAILURE; // SD_ExecLint();
+            status = EXIT_FAILURE; // SD_Exec_Lint();
             break;
         case SD_MODE_REGISTER:
             SD_LogDebug("Entering REGISTER mode");
-            status = SD_ExecRegister();
+            status = SD_Exec_Register();
+            break;
+        case SD_MODE_LUT_VALIDATE:
+            SD_LogDebug("Entering LUT VALIDATE mode");
+            SD_LogError("'lut validate' mode not implemented (TODO)");
+            status = EXIT_FAILURE; // SD_Exec_LUTValidate();
+            break;
+        case SD_MODE_LUT_INVALIDATE:
+            SD_LogDebug("Entering LUT INVALIDATE mode");
+            SD_LogError("'lut invalidate' mode not implemented (TODO)");
+            status = EXIT_FAILURE; // SD_Exec_LUTInvalidate();
+            break;
+        case SD_MODE_LUT_SET:
+            SD_LogDebug("Entering LUT SET mode");
+            SD_LogError("'lut set' mode not implemented (TODO)");
+            status = EXIT_FAILURE; // SD_Exec_LUTSet();
+            break;
+        case SD_MODE_LUT_ADD:
+            SD_LogDebug("Entering LUT ADD mode");
+            SD_LogError("'lut set' mode not implemented (TODO)");
+            status = EXIT_FAILURE; // SD_Exec_LUTAdd();
             break;
     }
 
@@ -123,5 +144,5 @@ short_circuit:
 }
 
 int32_t main(int32_t argc, const char *argv[]) {
-    return SD_ParseCLArgs(argc, argv) ? SD_Exec() : EXIT_FAILURE;
+    return SD_ParseArgv(argc, argv) ? SD_Exec() : EXIT_FAILURE;
 }
