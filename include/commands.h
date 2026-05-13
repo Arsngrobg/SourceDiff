@@ -16,15 +16,15 @@ int32_t SD_Exec_Lint(void);
 int32_t SD_Exec_Register(void);
 
 /// Validates the persistent lookup table to make sure file integrity is ok
-int32_t SD_Exec_LUTValidate(void);
+int32_t SD_Exec_LutValidate(void);
 
 /// Destroys the persistent lookup table to default configuration (equivalent to 'lut set {}')
-int32_t SD_Exec_LUTInvalidate(void);
+int32_t SD_Exec_LutInvalidate(void);
 
 /// Sets the persistent lookup table using the high-level DSL
-int32_t SD_Exec_LUTSet(void);
+int32_t SD_Exec_LutSet(void);
 
 /// Adds the high-level DSL to the persistent lookup table
-int32_t SD_Exec_LUTGet(void);
+int32_t SD_Exec_LutGet(void);
 
 #endif // SRCDIFF_COMMANDS_H
