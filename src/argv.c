@@ -95,11 +95,12 @@ bool SD_ParseArgv(int32_t argc, const char *argv[]) {
                 continue;
             }
 
-            if (strcmp(argv[arg], "validate") == 0) {
-                sd_argv.mode = SD_MODE_LUT_VALIDATE;
-            } else if (strcmp(argv[arg], "invalidate") == 0) {
-                sd_argv.mode = SD_MODE_LUT_INVALIDATE;
-            } else if (strcmp(argv[arg], "set")) {
+            arg++;
+            if (strcmp(argv[arg], "info") == 0) {
+                sd_argv.mode = SD_MODE_LUT_INFO;
+            } else if (strcmp(argv[arg], "clear") == 0) {
+                sd_argv.mode = SD_MODE_LUT_CLEAR;
+            } else if (strcmp(argv[arg], "set") == 0) {
                 sd_argv.mode = SD_MODE_LUT_SET;
                 if ((arg + 1) >= argc) {
                     valid = false;
@@ -107,9 +108,9 @@ bool SD_ParseArgv(int32_t argc, const char *argv[]) {
                     continue;
                 }
 
-                SD_LogDebug("lut validate ARG[0] = '%s'", argv[arg+1]);
+                SD_LogDebug("lut set ARG[0] = '%s'", argv[arg+1]);
                 sd_argv.args[0] = argv[++arg];
-            } else if (strcmp(argv[arg], "add")) {
+            } else if (strcmp(argv[arg], "add") == 0) {
                 sd_argv.mode = SD_MODE_LUT_ADD;
                 if ((arg + 1) >= argc) {
                     valid = false;
@@ -117,7 +118,7 @@ bool SD_ParseArgv(int32_t argc, const char *argv[]) {
                     continue;
                 }
 
-                SD_LogDebug("lut validate ARG[0] = '%s'", argv[arg+1]);
+                SD_LogDebug("lut add ARG[0] = '%s'", argv[arg+1]);
                 sd_argv.args[0] = argv[++arg];
             } else {
                 valid = false;

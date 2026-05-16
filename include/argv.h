@@ -7,15 +7,15 @@
 
 /// The modes of SourceDiff
 typedef enum {
-    SD_MODE_NONE,             // ./srcdiff                              <options>
-    SD_MODE_DIFF,             // ./srcdiff diff           <file> <file>
+    SD_MODE_NONE,             // ./srcdiff                                <options>
+    SD_MODE_DIFF,             // ./srcdiff diff           <file>   <file>
     SD_MODE_ANALYSE,          // ./srcdiff analyse        <glob>
     SD_MODE_LINT,             // ./srcdiff lint           <glob>
-    SD_MODE_REGISTER,         // ./srcdiff register       <name> <src>
-    SD_MODE_LUT_VALIDATE,     // ./srcdiff lut validate                 <options>
-    SD_MODE_LUT_INVALIDATE,   // ./srcdiff lut invalidate               <options>
-    SD_MODE_LUT_SET,          // ./srcdiff lut set        <config>      <options>
-    SD_MODE_LUT_ADD           // ./srcdiff lut add        <config>      <options>
+    SD_MODE_REGISTER,         // ./srcdiff register       <name>   <src>
+    SD_MODE_LUT_INFO,         // ./srcdiff lut info                       <options>
+    SD_MODE_LUT_SET,          // ./srcdiff lut set        <config>        <options>
+    SD_MODE_LUT_ADD,          // ./srcdiff lut add        <config>        <options>
+    SD_MODE_LUT_CLEAR,        // ./srcdiff lut clear                      <options>
 } SD_Mode;
 
 /// The global options that override behaviour

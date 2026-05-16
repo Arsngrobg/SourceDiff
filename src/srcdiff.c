@@ -13,28 +13,28 @@
 #error SD_VERSION, SD_DESCRIPTION, or SD_DOCS are not defined!
 #endif // !defined(SD_VERSION) || !defined(SD_DESCRIPTION) || !defined(SD_DOCS)
 
-#define SD_HELP_STRING                                                                       \
-    "SourceDiff v"SD_VERSION" - "SD_DESCRIPTION"\n"                                          \
-    "Copyright (c) 2025 James Armstrong (Arsngrobg)\n"                                       \
-    "\n"                                                                                     \
-    "Usage:\n"                                                                               \
-    "  %s diff     <file> <file>   The difference between both files\n"                      \
-    "  %s analyse  <glob>          Structural analysis of the files which match the glob\n"  \
-    "  %s lint     <glob>          Style analysis of the files which match the glob\n"       \
-    "  %s register <name> <dir>    Registers a new language (C compiler required)\n"         \
-    "\n"                                                                                     \
-    "Lookup Table Configuration:\n"                                                          \
-    "  %s lut init                    Creates a default LUT file if none exists\n"           \
-    "  %s lut [set|add]    <config>   Sets/adds the lookup table entries using the config\n" \
-    "  %s lut [in]validate            Validates/invalidates the lookup table\n"              \
-    "\n"                                                                                     \
-    "Options:\n"                                                                             \
-    "  --help             Display this information\n"                                        \
-    "  --version          Display version information for SourceDiff\n"                      \
-    "  --list-languages   Lists all registered language parsers\n"                           \
-    "  -v                 Display extra information during execution\n"                      \
-    "  -o <file>          Output digestible, structured analysis results to the <file>\n"    \
-    "\n"                                                                                     \
+#define SD_HELP_STRING                                                                      \
+    "SourceDiff v"SD_VERSION" - "SD_DESCRIPTION"\n"                                         \
+    "Copyright (c) 2025 James Armstrong (Arsngrobg)\n"                                      \
+    "\n"                                                                                    \
+    "Usage:\n"                                                                              \
+    "  %s diff     <file> <file>   The difference between both files\n"                     \
+    "  %s analyse  <glob>          Structural analysis of the files which match the glob\n" \
+    "  %s lint     <glob>          Style analysis of the files which match the glob\n"      \
+    "  %s register <name> <dir>    Registers a new language (C compiler required)\n"        \
+    "\n"                                                                                    \
+    "Lookup Table Configuration:\n"                                                         \
+    "  %s lut info                 Retrieves data about the lookup table\n"                 \
+    "  %s lut [set|add] <config>   Sets/adds the lookup table entries using the config\n"   \
+    "  %s lut clear                Clears the lookup table\n"                               \
+    "\n"                                                                                    \
+    "Options:\n"                                                                            \
+    "  --help             Display this information\n"                                       \
+    "  --version          Display version information for SourceDiff\n"                     \
+    "  --list-languages   Lists all registered language parsers\n"                          \
+    "  -v                 Display extra information during execution\n"                     \
+    "  -o <file>          Output digestible, structured analysis results to the <file>\n"   \
+    "\n"                                                                                    \
     "For more information: "SD_DOCS"\n"
 
 int32_t SD_Exec(void) {
@@ -117,25 +117,23 @@ int32_t SD_Exec(void) {
             SD_LogDebug("Entering REGISTER mode");
             status = SD_Exec_Register();
             break;
-        case SD_MODE_LUT_VALIDATE:
-            SD_LogDebug("Entering LUT VALIDATE mode");
-            SD_LogError("'lut validate' mode not implemented (TODO)");
-            status = EXIT_FAILURE; // SD_Exec_LUTValidate();
-            break;
-        case SD_MODE_LUT_INVALIDATE:
-            SD_LogDebug("Entering LUT INVALIDATE mode");
-            SD_LogError("'lut invalidate' mode not implemented (TODO)");
-            status = EXIT_FAILURE; // SD_Exec_LUTInvalidate();
+        case SD_MODE_LUT_INFO:
+            SD_LogDebug("Entering LUT INFO mode");
+            status = SD_Exec_LutInfo();
             break;
         case SD_MODE_LUT_SET:
             SD_LogDebug("Entering LUT SET mode");
-            SD_LogError("'lut set' mode not implemented (TODO)");
-            status = EXIT_FAILURE; // SD_Exec_LUTSet();
+            status = SD_Exec_LutSet();
             break;
         case SD_MODE_LUT_ADD:
             SD_LogDebug("Entering LUT ADD mode");
-            SD_LogError("'lut set' mode not implemented (TODO)");
-            status = EXIT_FAILURE; // SD_Exec_LUTAdd();
+            SD_LogError("'lut add' mode not implemented (TODO)");
+            status = EXIT_FAILURE; // SD_Exec_LutAdd();
+            break;
+        case SD_MODE_LUT_CLEAR:
+            SD_LogDebug("Entering LUT CLEAR mode");
+            SD_LogError("'lut clear' mode not implemented (TODO)");
+            status = EXIT_FAILURE; // SD_Exec_LutClear();
             break;
     }
 
