@@ -22,9 +22,9 @@ int32_t SD_Exec_LutInfo(void);
 int32_t SD_Exec_LutSet(void);
 
 /// Adds the high-level DSL to the persistent lookup table
-int32_t SD_Exec_LutGet(void);
+int32_t SD_Exec_LutAdd(void);
 
 /// Destroys the persistent lookup table to default configuration (equivalent to 'lut set {}')
-int32_t SD_Exec_LutInvalidate(void);
+int32_t SD_Exec_LutClear(void);
 
 #endif // SRCDIFF_COMMANDS_H
