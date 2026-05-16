@@ -210,16 +210,16 @@ bool SD_LutAdd(SD_Lut *dst, const SD_Lut *src) {
 // <value>           ::= [VALID FILE EXTENSION]
 
 // parsers
-bool SD_LutParseDSL_config         (const char **dsl, SD_Lut *lut);
-bool SD_LutParseDSL_key_values     (const char **dsl, SD_Lut *lut);
-bool SD_LutParseDSL_key_values_tail(const char **dsl, SD_Lut *lut);
-bool SD_LutParseDSL_key_value      (const char **dsl, SD_Lut *lut);
-bool SD_LutParseDSL_list           (const char **dsl, SD_Lut *lut);
-bool SD_LutParseDSL_values         (const char **dsl, SD_Lut *lut);
-bool SD_LutParseDSL_values_tail    (const char **dsl, SD_Lut *lut);
-bool SD_LutParseDSL_value          (const char **dsl, SD_Lut *lut);
-bool SD_LutParseDSL_key            (const char **dsl, SD_Lut *lut);
-bool SD_LutParseDSL_value          (const char **dsl, SD_Lut *lut);
+static bool SD_LutParseDSL_config         (const char **dsl, SD_Lut *lut);
+static bool SD_LutParseDSL_key_values     (const char **dsl, SD_Lut *lut);
+static bool SD_LutParseDSL_key_values_tail(const char **dsl, SD_Lut *lut);
+static bool SD_LutParseDSL_key_value      (const char **dsl, SD_Lut *lut);
+static bool SD_LutParseDSL_list           (const char **dsl, SD_Lut *lut);
+static bool SD_LutParseDSL_values         (const char **dsl, SD_Lut *lut);
+static bool SD_LutParseDSL_values_tail    (const char **dsl, SD_Lut *lut);
+static bool SD_LutParseDSL_value          (const char **dsl, SD_Lut *lut);
+static bool SD_LutParseDSL_key            (const char **dsl, SD_Lut *lut);
+static bool SD_LutParseDSL_value          (const char **dsl, SD_Lut *lut);
 
 /// Parse the DSL into a tangible SD_Lut object
 bool SD_LutParseDSL(const char *dsl, SD_Lut *lut) {
@@ -228,7 +228,7 @@ bool SD_LutParseDSL(const char *dsl, SD_Lut *lut) {
     return SD_LutParseDSL_config(&dsl, lut);
 }
 
-void SD_IgnoreWhitespace(const char **src) {
+static void SD_IgnoreWhitespace(const char **src) {
     assert(src != NULL);
 
     while ((**src) == ' ') {
@@ -236,7 +236,7 @@ void SD_IgnoreWhitespace(const char **src) {
     }
 }
 
-bool SD_ParseChar(const char **src, const char *name, char ch) {
+static bool SD_ParseChar(const char **src, const char *name, char ch) {
     assert(src != NULL && name != NULL);
 
     SD_IgnoreWhitespace(src);
@@ -249,7 +249,7 @@ bool SD_ParseChar(const char **src, const char *name, char ch) {
 }
 
 // <config> ::= '{' <key_values> '}'
-bool SD_LutParseDSL_config(const char **dsl, SD_Lut *lut) {
+static bool SD_LutParseDSL_config(const char **dsl, SD_Lut *lut) {
     assert(dsl != NULL && lut != NULL);
     SD_LogDebug("PARSE RULE: <config>");
 
@@ -259,7 +259,7 @@ bool SD_LutParseDSL_config(const char **dsl, SD_Lut *lut) {
 }
 
 // <key_values> ::= <key_value> <key_values_tail>
-bool SD_LutParseDSL_key_values(const char **dsl, SD_Lut *lut) {
+static bool SD_LutParseDSL_key_values(const char **dsl, SD_Lut *lut) {
     assert(dsl != NULL && lut != NULL);
     SD_LogDebug("PARSE RULE: <key_values>");
 
@@ -269,7 +269,7 @@ bool SD_LutParseDSL_key_values(const char **dsl, SD_Lut *lut) {
 
 // <key_values_tail> ::= ε
 //                    |  ',' <key_values>
-bool SD_LutParseDSL_key_values_tail(const char **dsl, SD_Lut *lut) {
+static bool SD_LutParseDSL_key_values_tail(const char **dsl, SD_Lut *lut) {
     assert(dsl != NULL && lut != NULL);
     SD_LogDebug("PARSE RULE: <key_values_tail>");
 
@@ -279,7 +279,7 @@ bool SD_LutParseDSL_key_values_tail(const char **dsl, SD_Lut *lut) {
 }
 
 // <key_value> ::= <key> ':' <list>
-bool SD_LutParseDSL_key_value(const char **dsl, SD_Lut *lut) {
+static bool SD_LutParseDSL_key_value(const char **dsl, SD_Lut *lut) {
     assert(dsl != NULL && lut != NULL);
     SD_LogDebug("PARSE RULE: <key_values>");
 
@@ -307,7 +307,7 @@ bool SD_LutParseDSL_key_value(const char **dsl, SD_Lut *lut) {
 }
 
 // <list> ::= '[' <values> ']'
-bool SD_LutParseDSL_list(const char **dsl, SD_Lut *lut) {
+static bool SD_LutParseDSL_list(const char **dsl, SD_Lut *lut) {
     assert(dsl != NULL && lut != NULL);
     SD_LogDebug("PARSE RULE: <list>");
 
@@ -317,7 +317,7 @@ bool SD_LutParseDSL_list(const char **dsl, SD_Lut *lut) {
 }
 
 // <values> ::= <value> <values_tail>
-bool SD_LutParseDSL_values(const char **dsl, SD_Lut *lut) {
+static bool SD_LutParseDSL_values(const char **dsl, SD_Lut *lut) {
     assert(dsl != NULL && lut != NULL);
     SD_LogDebug("PARSE RULE: <values>");
 
@@ -327,7 +327,7 @@ bool SD_LutParseDSL_values(const char **dsl, SD_Lut *lut) {
 
 // <values_tail> ::= ε
 //                 | ',' <values>
-bool SD_LutParseDSL_values_tail(const char **dsl, SD_Lut *lut) {
+static bool SD_LutParseDSL_values_tail(const char **dsl, SD_Lut *lut) {
     assert(dsl != NULL && lut != NULL);
     SD_LogDebug("PARSE RULE: <values_tail>");
 
@@ -344,7 +344,7 @@ bool SD_LutParseDSL_values_tail(const char **dsl, SD_Lut *lut) {
 // };
 
 // <key> ::= [VALID FILENAME]
-bool SD_LutParseDSL_key(const char **dsl, SD_Lut *lut) {
+static bool SD_LutParseDSL_key(const char **dsl, SD_Lut *lut) {
     assert(dsl != NULL && lut != NULL);
     SD_LogDebug("PARSE RULE: <key>");
 
@@ -362,7 +362,7 @@ bool SD_LutParseDSL_key(const char **dsl, SD_Lut *lut) {
 }
 
 // <value> ::= [VALID FILE EXTENSION]
-bool SD_LutParseDSL_value(const char **dsl, SD_Lut *lut) {
+static bool SD_LutParseDSL_value(const char **dsl, SD_Lut *lut) {
     assert(dsl != NULL && lut != NULL);
     SD_LogDebug("PARSE RULE: <value>");
 
