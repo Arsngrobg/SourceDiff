@@ -127,13 +127,11 @@ int32_t SD_Exec(void) {
             break;
         case SD_MODE_LUT_ADD:
             SD_LogDebug("Entering LUT ADD mode");
-            SD_LogError("'lut add' mode not implemented (TODO)");
-            status = EXIT_FAILURE; // SD_Exec_LutAdd();
+            status = SD_Exec_LutAdd();
             break;
         case SD_MODE_LUT_CLEAR:
             SD_LogDebug("Entering LUT CLEAR mode");
-            SD_LogError("'lut clear' mode not implemented (TODO)");
-            status = EXIT_FAILURE; // SD_Exec_LutClear();
+            status = SD_Exec_LutClear();
             break;
     }
 
