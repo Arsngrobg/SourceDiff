@@ -14,9 +14,9 @@
 #define ANSI_DEBUG  ANSI_PREFIX "1;36" ANSI_SUFFIX
 
 #define SD_Log(fmt, ...)      fprintf(stdout, "%s: "                                         fmt "\n", SD_GetExecName(),           ##__VA_ARGS__)
-#define SD_LogInfo(fmt, ...)  fprintf(stdout, "%s: " ANSI_INFO  "info:"       ANSI_RESET " " fmt "\n", SD_GetExecName(),           ##__VA_ARGS__)
 #define SD_LogWarn(fmt, ...)  fprintf(stderr, "%s: " ANSI_WARN  "warn:"       ANSI_RESET " " fmt "\n", SD_GetExecName(),           ##__VA_ARGS__)
 #define SD_LogError(fmt, ...) fprintf(stderr, "%s: " ANSI_ERROR "error:"      ANSI_RESET " " fmt "\n", SD_GetExecName(),           ##__VA_ARGS__)
 #define SD_LogDebug(fmt, ...) fprintf(stdout, "%s: " ANSI_DEBUG "debug (%s):" ANSI_RESET " " fmt "\n", SD_GetExecName(), __func__, ##__VA_ARGS__)
+#define SD_LogInfo(fmt, ...)  if (SD_IsOptionSet(SD_OPTION_VERBOSE)) fprintf(stdout, "%s: " ANSI_INFO  "info:"       ANSI_RESET " " fmt "\n", SD_GetExecName(),           ##__VA_ARGS__)
 
 #endif // SRCDIFF_LOGGING_H
