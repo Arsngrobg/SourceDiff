@@ -19,7 +19,7 @@ TREE-SITTER_PREFIX  := vendor/tree-sitter/lib/
 override CFLAGS += -I$(TREE-SITTER_PREFIX)src -I$(TREE-SITTER_PREFIX)include
 
 # FILES
-TREE-SITTER_CB      := $(TREE-SITTER_PREFIX)src/lib.c $(TREE-SITTER_PREFIX)src/wasm_store.c
+TREE-SITTER_CB      := $(TREE-SITTER_PREFIX)src/lib.c
 TREE-SITTER_C       := $(filter-out $(TREE-SITTER_CB),$(wildcard $(TREE-SITTER_PREFIX)src/*.c))
 TREE-SITTER_O       := $(addprefix $(OBJDUMP)/tree-sitter/,$(notdir $(TREE-SITTER_C:.c=.o)))
 TREE-SITTER_STATIC  := $(LIBDUMP)/libtree-sitter.a

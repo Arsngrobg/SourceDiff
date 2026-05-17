@@ -10,3 +10,6 @@
 [submodule "vendor/libcc"]
 	path = vendor/libcc
 	url = https://github.com/Arsngrobg/LibCC.git
+[submodule "test/python-grammar"]
+	path = test/python-grammar
+	url = https://github.com/tree-sitter/tree-sitter-python.git
