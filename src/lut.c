@@ -48,7 +48,7 @@ SDLut *sd_get_lut(void) {
     SDPRIVATE bool   loaded = false;
 
     if (!sd_enter_bin_dir())
-        return NULL;
+        goto short_circuit;
 
     if (!loaded) {
         FILE *lut_file = fopen(SRCDIFF_LUTSTORE, "rb");
@@ -62,6 +62,8 @@ SDLut *sd_get_lut(void) {
     }
 
     sd_exit_bin_dir();
+
+short_circuit:
     return &lut;
 }
 
@@ -210,7 +212,8 @@ bool sd_lut_add(SDLut *dst, const SDLut *src) {
 // Grammar:
 // <config>          ::= '{' <key_values> '}'
 //
-// <key_values>      ::= <key_value> <key_values_tail>
+// <key_values>      ::= ε
+//                    |  <key_value> <key_values_tail>
 // <key_values_tail> ::= ε
 //                    |  ',' <key_values>
 //
@@ -225,7 +228,7 @@ bool sd_lut_add(SDLut *dst, const SDLut *src) {
 // <key>             ::= [VALID FILENAME]
 // <value>           ::= [VALID FILE EXTENSION]
 
-// parsers
+// config parsers
 SDPRIVATE bool sd_lut_parse_config         (const char **dsl, SDLut *lut);
 SDPRIVATE bool sd_lut_parse_key_values     (const char **dsl, SDLut *lut);
 SDPRIVATE bool sd_lut_parse_key_values_tail(const char **dsl, SDLut *lut);
@@ -278,11 +281,14 @@ bool sd_lut_parse_config(const char **dsl, SDLut *lut) {
       &&   sd_parse_char(dsl, "closing brace", '}');
 }
 
-// <key_values> ::= <key_value> <key_values_tail>
+// <key_values> ::= ε
+//               |  <key_value> <key_values_tail>
 SDPRIVATE
 bool sd_lut_parse_key_values(const char **dsl, SDLut *lut) {
     assert(dsl != NULL && lut != NULL);
     sd_log_debug("PARSE RULE: <key_values>");
+
+    if ((*(*dsl)+1) == '}') return true;
 
     return sd_lut_parse_key_value      (dsl, lut)
       &&   sd_lut_parse_key_values_tail(dsl, lut);

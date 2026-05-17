@@ -28,7 +28,7 @@ SRCDIFF_EXEC   := $(BINDUMP)/$(NAME)$(EXEXT)
 
 # COMPILER CONFIGURATION
 override CFLAGS += -Iinclude
-override CFLAGS += #-DNDEBUG
+override CFLAGS += -DNDEBUG
 override CFLAGS += -O2
 override CFLAGS += -MMD -MP
 override CFLAGS += -DSD_VERSION=\"$(VERSION)\" -DSD_DESCRIPTION="\"$(DESCRIPTION)\"" -DSD_DOCS="\"$(DOCS)\""
