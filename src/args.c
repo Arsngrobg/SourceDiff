@@ -3,8 +3,8 @@
 
 #include "srcdiff.h"
 
-#define SRCDIFF_ARGC     (2)        // the most arguments ever required
-#define SRCDIFF_ASBIT(o) (1 << (o)) // for getting the bit position for an SDMode
+#define SRCDIFF_ARGC     (2)                        // the most arguments ever required
+#define SRCDIFF_ASBIT(o) ((SDOptionSet)(1u << (o))) // for getting the bit position for an SDMode
 
 // The bits we use to store enabled options
 typedef uint8_t SDOptionSet; // 000ovLVH
@@ -206,7 +206,7 @@ SDPUBLIC
 bool sd_is_option_set(SDOption option) {
     assert(sd_is_argv_parsed());
     SDOptionSet options = args.options;
-    return (options & option) != 0;
+    return (options & SRCDIFF_ASBIT(option)) != 0;
 }
 
 #ifndef NDEBUG
