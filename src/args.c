@@ -22,7 +22,7 @@ typedef struct {
 #endif // NDEBUG
 } SDArgs;
 
-static SDArgs args;
+SDPRIVATE SDArgs args;
 
 /// Parses the raw `argv`
 SDPUBLIC

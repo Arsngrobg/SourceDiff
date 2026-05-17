@@ -44,8 +44,8 @@ bool sd_write_lut(const SDLut *lut) {
 /// Gets the persistent lookup table (empty if none exists)
 SDPUBLIC
 SDLut *sd_get_lut(void) {
-    static SDLut lut    = {0};
-    static bool   loaded = false;
+    SDPRIVATE SDLut lut    = {0};
+    SDPRIVATE bool   loaded = false;
 
     if (!sd_enter_bin_dir())
         return NULL;
