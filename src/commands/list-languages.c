@@ -29,6 +29,7 @@ int32_t sd_exec_list_languages(void) {
 
     size_t amount = 0;
     while ((entry = readdir(dir)) != NULL) {
+        sd_log_info("file read: %s", entry->d_name);
         char *dot = strrchr(entry->d_name, '.');
         if (dot == NULL || strcmp(dot+1, CC_SHARED_LIB_EXT) != 0) {
             continue;
