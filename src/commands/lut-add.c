@@ -16,15 +16,9 @@ int32_t sd_exec_lut_add(void) {
         goto short_circuit;
     }
 
-    SDLut *plut = sd_get_lut();
-    if (plut == NULL) {
-        status = EXIT_FAILURE;
-        goto short_circuit;
-    }
-
     status = (int32_t) !(
            sd_lut_parse(sd_get_arg(0), lut)
-        && sd_lut_add  (plut, lut)
+        && sd_lut_add  (sd_get_lut(), lut)
         && sd_write_lut(lut)
     );
 
