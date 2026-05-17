@@ -1,4 +1,7 @@
+#include <assert.h>
+#include <stdarg.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 
 #include "tree_sitter/api.h"
 
@@ -86,4 +89,22 @@ bool sd_exit_bin_dir(void) {
 
     sd_log_debug("entering user working directory");
     return _sd_chdir(usrdir) == 0;
+}
+
+/// Whether the file exists or not - uses format string for ergonomics
+SDPUBLIC
+bool sd_file_exists(const char *fmt, ...) {
+    assert(file != NULL);
+
+    char pathbuf[SRCDIFF_MAXPATH];
+
+    va_list vargs;
+    va_start(vargs, fmt);
+    vsnprintf(pathbuf, SRCDIFF_MAXPATH, fmt, vargs);
+    va_end(vargs);
+
+    printf("%s\n", pathbuf);
+
+    struct stat st;
+    return stat(pathbuf, &st) == 0;
 }
