@@ -101,17 +101,17 @@ int32_t sd_exec(void) {
         case SD_MODE_DIFF:
             sd_log_debug("Entering DIFF mode");
             sd_log_error("'diff' mode not implemented (TODO)");
-            status = EXIT_FAILURE; // sd_exec_diff();
+            status = sd_exec_diff();
             break;
         case SD_MODE_ANALYSE:
             sd_log_debug("Entering ANALYSE mode");
             sd_log_error("'analyse' mode not implemented (TODO)");
-            status = EXIT_FAILURE; // sd_exec_analyse();
+            status = sd_exec_analyse();
             break;
         case SD_MODE_LINT:
             sd_log_debug("Entering LINT mode");
             sd_log_error("'lint' mode not implemented (TODO)");
-            status = EXIT_FAILURE; // sd_exec_lint();
+            status = sd_exec_lint();
             break;
         case SD_MODE_REGISTER:
             sd_log_debug("Entering REGISTER mode");
