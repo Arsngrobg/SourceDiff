@@ -132,9 +132,10 @@ char *sd_read_entire_file(const char *fmt, ...) {
     }
     fseek(file, 0, SEEK_END);
     size_t flen = ftell(file);
+    rewind(file);
 
     file_contents = malloc(sizeof(char) * (flen + 1));
-    fwrite(file_contents, sizeof(char), flen, file);
+    fread(file_contents, sizeof(char), flen, file);
     file_contents[flen] = '\0';
 
 defer:
