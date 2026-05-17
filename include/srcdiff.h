@@ -212,6 +212,9 @@ bool sd_lut_parse(const char *dsl, SDLut *lut);
 //                              Language Loading
 // =============================================================================
 
+/// The directory where languages are dumped into
+#define SRCDIFF_LANGSTORE "languages/"
+
 /// Loads the language specified by the `lang_name`
 SDPUBLIC
 TSLanguage *sd_load_language(const char *lang_name);

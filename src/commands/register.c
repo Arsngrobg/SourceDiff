@@ -8,8 +8,6 @@
 
 #include "srcdiff.h"
 
-#define SD_LANGDUMP "languages"
-
 /// Registers a Tree Sitter grammar to SourceDiff
 SDPUBLIC
 int32_t sd_exec_register(void) {
@@ -62,12 +60,12 @@ int32_t sd_exec_register(void) {
         cc_add_source(cc, "%s/scanner.c", dirstr);
     }
 
-    if (mkdir(SD_LANGDUMP) == 0) {
-        sd_log_debug("Created "SD_LANGDUMP" directory");
+    if (mkdir(SRCDIFF_LANGSTORE) == 0) {
+        sd_log_debug("Created "SRCDIFF_LANGSTORE" directory");
     }
 
     cc_set_output_type(cc, CC_OUTPUT_SHARED);
-    cc_set_output(cc, SD_LANGDUMP"/%s."CC_SHARED_LIB_EXT, sd_get_arg(0));
+    cc_set_output(cc, SRCDIFF_LANGSTORE"/%s."CC_SHARED_LIB_EXT, sd_get_arg(0));
     cc_invoke(cc);
 
     sd_log_debug("INVOKED COMMAND: %s", cc_render_command(cc));
