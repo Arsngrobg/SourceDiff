@@ -153,6 +153,10 @@ int32_t sd_exec_lut_add(void);
 SDPUBLIC
 int32_t sd_exec_lut_clear(void);
 
+/// Lists all registered languages - according to the user's platform
+SDPUBLIC
+int32_t sd_exec_list_languages(void);
+
 // =============================================================================
 //                        Lookup Table for Language Grammars
 // =============================================================================
