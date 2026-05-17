@@ -48,7 +48,7 @@ bool sd_parse_argv(int32_t argc, const char *argv[]) {
 
             sd_log_debug("diff ARG[0] = '%s'", argv[arg+1]);
             sd_log_debug("diff ARG[1] = '%s'", argv[arg+2]);
-            args.args = argv + arg;
+            args.args = argv + arg + 1;
             args.argc = 2;
         }
         else if (strcmp(argv[arg], "analyse") == 0) {
@@ -60,7 +60,7 @@ bool sd_parse_argv(int32_t argc, const char *argv[]) {
             }
 
             sd_log_debug("analyse ARG[0] = '%s'", argv[0]);
-            args.args = argv + arg;
+            args.args = argv + arg + 1;
             args.argc = 1;
         }
         else if (strcmp(argv[arg], "lint") == 0) {
@@ -72,7 +72,7 @@ bool sd_parse_argv(int32_t argc, const char *argv[]) {
             }
 
             sd_log_debug("lint ARG[0] = '%s'", argv[arg+1]);
-            args.args = argv + arg;
+            args.args = argv + arg + 1;
             args.argc = 1;
         }
         else if (strcmp(argv[arg], "register") == 0) {
