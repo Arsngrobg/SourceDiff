@@ -1,5 +1,7 @@
 #include <stdbool.h>
 
+#include "tree_sitter/api.h"
+
 #include "srcdiff.h"
 
 #ifdef _WIN32
