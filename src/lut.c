@@ -5,34 +5,33 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "logging.h"
-#include "lut.h"
+#include "srcdiff.h"
 
-#define SD_LUT_DUMPFILE    "LUT"                                // the file that the persistent lookup table is stored
-#define SD_LUT_MAXSTRLEN   (32)                                 // the maximum length of a string in a lookup table
-#define SD_LUT_MAXKEYS     (256)                                // the maximum number of keys in a lookup table
-#define SD_LUT_MAXVALUES   (256)                                // the maximum number of values in a lookup table
+#define SRCDIFF_LUTSTORE     "LUT" // the file that the persistent lookup table is stored
+#define SRCDIFF_MAXLUTSTRLEN (32)  // the maximum length of a string in a lookup table
+#define SRCDIFF_MAXLUTKEYS   (256) // the maximum number of keys in a lookup table
+#define SRCDIFF_MAXLUTVALUES (256) // the maximum number of values in a lookup table
 
 // the lookup table representation in memory
-struct SD_Lut {
-    char    keys   [SD_LUT_MAXKEYS]  [SD_LUT_MAXSTRLEN+1]; // the keys
-    char    vals   [SD_LUT_MAXVALUES][SD_LUT_MAXSTRLEN+1]; // the values
-    uint8_t mapping[SD_LUT_MAXVALUES][2];                  // 1:1 associative array of values to keys
+struct SDLut {
+    char    keys   [SRCDIFF_MAXLUTKEYS]  [SRCDIFF_MAXLUTSTRLEN+1]; // the keys
+    char    vals   [SRCDIFF_MAXLUTVALUES][SRCDIFF_MAXLUTSTRLEN+1]; // the values
+    uint8_t mapping[SRCDIFF_MAXLUTVALUES][2];                      // 1:1 associative array of values to keys
 };
 
 /// Overwrites the persistent LUT with this one
-bool SD_WriteLut(const SD_Lut *lut) {
+SDPUBLIC
+bool sd_write_lut(const SDLut *lut) {
     assert(lut != NULL);
 
-    // TODO: add proper error detection
-    FILE *lut_file = fopen(SD_LUT_DUMPFILE, "w+b");
+    FILE *lut_file = fopen(SRCDIFF_LUTSTORE, "w+b");
     if (lut_file == NULL) {
-        SD_LogError("unable to obtain a handle to the LUT file");
+        sd_log_error("unable to obtain a handle to the LUT file");
         return false;
     }
 
-    if (fwrite(lut, sizeof(SD_Lut), 1, lut_file) != 1) {
-        SD_LogError("unable to write to the LUT file");
+    if (fwrite(lut, sizeof(SDLut), 1, lut_file) != 1) {
+        sd_log_error("unable to write to the LUT file");
         return false;
     }
     fclose(lut_file);
@@ -40,15 +39,16 @@ bool SD_WriteLut(const SD_Lut *lut) {
 }
 
 /// Gets the persistent lookup table (empty if none exists)
-SD_Lut *SD_GetLut(void) {
-    static SD_Lut lut    = {0};
+SDPUBLIC
+SDLut *sd_get_lut(void) {
+    static SDLut lut    = {0};
     static bool   loaded = false;
 
     if (!loaded) {
-        FILE *lut_file = fopen(SD_LUT_DUMPFILE, "rb");
+        FILE *lut_file = fopen(SRCDIFF_LUTSTORE, "rb");
         if (lut_file != NULL) {
-            if (fread(&lut, 1, sizeof(SD_Lut), lut_file) != sizeof(SD_Lut)) {
-                SD_LogWarn("Unable to properly read the LUT file");
+            if (fread(&lut, 1, sizeof(SDLut), lut_file) != sizeof(SDLut)) {
+                sd_log_warn("Unable to properly read the LUT file");
             }
             fclose(lut_file);
         }
@@ -59,42 +59,46 @@ SD_Lut *SD_GetLut(void) {
 }
 
 /// Allocates an empty lookup table
-SD_Lut *SD_EmptyLut(void) {
-    SD_Lut *lut = calloc(1, sizeof(SD_Lut)); // 0 init for parity
+SDPUBLIC
+SDLut *sd_empty_lut(void) {
+    SDLut *lut = calloc(1, sizeof(SDLut)); // 0 init for parity
     if (lut == NULL) {
-        SD_LogError("out of system memory");
+        sd_log_error("out of system memory");
     }
 
     return lut;
 }
 
 /// The number of keys in the lookup table
-size_t SD_LutKeyCount(const SD_Lut *lut) {
+SDPUBLIC
+size_t sd_lut_key_count(const SDLut *lut) {
     assert(lut != NULL);
 
     size_t count = 0;
-    for (size_t idx = 0; idx < SD_LUT_MAXKEYS && lut->keys[idx][0] != '\0'; idx++) {
+    for (size_t idx = 0; idx < SRCDIFF_MAXLUTKEYS && lut->keys[idx][0] != '\0'; idx++) {
         count++;
     }
     return count;
 }
 
 /// The number of values in the lookup table
-size_t SD_LutValueCount(const SD_Lut *lut) {
+SDPUBLIC
+size_t sd_lut_value_count(const SDLut *lut) {
     assert(lut != NULL);
 
     size_t count = 0;
-    for (size_t idx = 0; idx < SD_LUT_MAXVALUES && lut->vals[idx][0] != '\0'; idx++) {
+    for (size_t idx = 0; idx < SRCDIFF_MAXLUTVALUES && lut->vals[idx][0] != '\0'; idx++) {
         count++;
     }
     return count;
 }
 
 /// Whether the lookup table contains the key
-bool SD_LutContainsKey(const SD_Lut *lut, const char *key) {
+SDPUBLIC
+bool sd_lut_has_key(const SDLut *lut, const char *key) {
     assert(lut != NULL && key != NULL);
 
-    size_t keyc = SD_LutKeyCount(lut);
+    size_t keyc = sd_lut_key_count(lut);
     for (size_t idx = 0; idx < keyc; idx++) {
         if (strcmp(lut->keys[idx], key) == 0) {
             return true;
@@ -104,10 +108,11 @@ bool SD_LutContainsKey(const SD_Lut *lut, const char *key) {
 }
 
 /// Whether the lookup table contains the value
-bool SD_LutContainsValue(const SD_Lut *lut, const char *value) {
+SDPUBLIC
+bool sd_lut_has_value(const SDLut *lut, const char *value) {
     assert(lut != NULL && value != NULL);
 
-    size_t valc = SD_LutValueCount(lut);
+    size_t valc = sd_lut_value_count(lut);
     for (size_t idx = 0; idx < valc; idx++) {
         if (strcmp(lut->vals[idx], value) == 0) {
             return true;
@@ -117,24 +122,27 @@ bool SD_LutContainsValue(const SD_Lut *lut, const char *value) {
 }
 
 /// The key from the lookup table
-const char *SD_LutKeyAt(const SD_Lut *lut, size_t idx) {
+SDPUBLIC
+const char *sd_lut_key_at(const SDLut *lut, size_t idx) {
     assert(lut != NULL);
 
     return lut->keys[idx];
 }
 
 /// The value from the lookup table
-const char *SD_LutValueAt(const SD_Lut *lut, size_t idx) {
+SDPUBLIC
+const char *sd_lut_value_at(const SDLut *lut, size_t idx) {
     assert(lut != NULL);
 
     return lut->vals[idx];
 }
 
 /// The mapped key for the given value in the lookup table
-const char *SD_LutMappingFor(const SD_Lut *lut, const char *value) {
+SDPUBLIC
+const char *sd_lut_mapping_for(const SDLut *lut, const char *value) {
     assert(lut != NULL && value != NULL);
 
-    size_t value_count = SD_LutValueCount(lut);
+    size_t value_count = sd_lut_value_count(lut);
     for (size_t idx = 0; idx < value_count; idx++) {
         const char *value_there = lut->vals[lut->mapping[idx][0]];
         if (strcmp(value_there, value) == 0) {
@@ -146,42 +154,43 @@ const char *SD_LutMappingFor(const SD_Lut *lut, const char *value) {
 }
 
 /// Adds the given lookup table to the persistent lookup table
-bool SD_LutAdd(SD_Lut *dst, const SD_Lut *src) {
+SDPUBLIC
+bool sd_lut_add(SDLut *dst, const SDLut *src) {
     assert(dst != NULL && src != NULL);
 
-    size_t dst_keyc = SD_LutKeyCount  (dst);
-    size_t dst_valc = SD_LutValueCount(dst);
-    size_t src_keyc = SD_LutKeyCount  (src);
-    size_t src_valc = SD_LutValueCount(src);
+    size_t dst_keyc = sd_lut_key_count  (dst);
+    size_t dst_valc = sd_lut_value_count(dst);
+    size_t src_keyc = sd_lut_key_count  (src);
+    size_t src_valc = sd_lut_value_count(src);
 
-    if ((src_keyc + dst_keyc) > SD_LUT_MAXKEYS || (src_valc + dst_valc) > SD_LUT_MAXVALUES) {
-        SD_LogError("resulting LUT will be greater in size than allowed");
+    if ((src_keyc + dst_keyc) > SRCDIFF_MAXLUTKEYS || (src_valc + dst_valc) > SRCDIFF_MAXLUTVALUES) {
+        sd_log_error("resulting LUT will be greater in size than allowed");
         return false;
     }
 
     size_t offset = 0;
     for (size_t idx = 0; idx < src_keyc; idx++) {
-        SD_LogDebug("src key = '%s'", src->keys[idx]);
+        sd_log_debug("src key = '%s'", src->keys[idx]);
 
-        if (SD_LutContainsKey(dst, src->keys[idx])) {
+        if (sd_lut_has_key(dst, src->keys[idx])) {
             offset++;
         } else {
             char *dst_key = dst->keys[dst_keyc + idx - offset];
             const char *src_key = src->keys[idx];
-            memcpy(dst_key, src_key, SD_LUT_MAXSTRLEN); // all luts are zero initialised so is safe
+            memcpy(dst_key, src_key, SRCDIFF_MAXLUTSTRLEN); // all luts are zero initialised so is safe
         }
     }
 
     offset = 0;
     for (size_t idx = 0; idx < src_valc; idx++) {
-        SD_LogDebug("src val = '%s'", src->vals[idx]);
+        sd_log_debug("src val = '%s'", src->vals[idx]);
 
-        if (SD_LutContainsValue(dst, src->vals[idx])) {
+        if (sd_lut_has_value(dst, src->vals[idx])) {
             offset++;
         } else {
             char *dst_val = dst->vals[dst_valc + idx - offset];
             const char *src_val = src->vals[idx];
-            memcpy(dst_val, src_val, SD_LUT_MAXSTRLEN); // all luts are zero initialised so is safe
+            memcpy(dst_val, src_val, SRCDIFF_MAXLUTSTRLEN); // all luts are zero initialised so is safe
         }
     }
 
@@ -210,25 +219,19 @@ bool SD_LutAdd(SD_Lut *dst, const SD_Lut *src) {
 // <value>           ::= [VALID FILE EXTENSION]
 
 // parsers
-static bool SD_LutParseDSL_config         (const char **dsl, SD_Lut *lut);
-static bool SD_LutParseDSL_key_values     (const char **dsl, SD_Lut *lut);
-static bool SD_LutParseDSL_key_values_tail(const char **dsl, SD_Lut *lut);
-static bool SD_LutParseDSL_key_value      (const char **dsl, SD_Lut *lut);
-static bool SD_LutParseDSL_list           (const char **dsl, SD_Lut *lut);
-static bool SD_LutParseDSL_values         (const char **dsl, SD_Lut *lut);
-static bool SD_LutParseDSL_values_tail    (const char **dsl, SD_Lut *lut);
-static bool SD_LutParseDSL_value          (const char **dsl, SD_Lut *lut);
-static bool SD_LutParseDSL_key            (const char **dsl, SD_Lut *lut);
-static bool SD_LutParseDSL_value          (const char **dsl, SD_Lut *lut);
+SDPRIVATE bool sd_lut_parse_config         (const char **dsl, SDLut *lut);
+SDPRIVATE bool sd_lut_parse_key_values     (const char **dsl, SDLut *lut);
+SDPRIVATE bool sd_lut_parse_key_values_tail(const char **dsl, SDLut *lut);
+SDPRIVATE bool sd_lut_parse_key_value      (const char **dsl, SDLut *lut);
+SDPRIVATE bool sd_lut_parse_list           (const char **dsl, SDLut *lut);
+SDPRIVATE bool sd_lut_parse_values         (const char **dsl, SDLut *lut);
+SDPRIVATE bool sd_lut_parse_values_tail    (const char **dsl, SDLut *lut);
+SDPRIVATE bool sd_lut_parse_value          (const char **dsl, SDLut *lut);
+SDPRIVATE bool sd_lut_parse_key            (const char **dsl, SDLut *lut);
+SDPRIVATE bool sd_lut_parse_value          (const char **dsl, SDLut *lut);
 
-/// Parse the DSL into a tangible SD_Lut object
-bool SD_LutParseDSL(const char *dsl, SD_Lut *lut) {
-    assert(dsl != NULL && lut != NULL);
-    (*lut) = (SD_Lut) {0};
-    return SD_LutParseDSL_config(&dsl, lut);
-}
-
-static void SD_IgnoreWhitespace(const char **src) {
+SDPRIVATE
+void sd_ignore_whitespace(const char **src) {
     assert(src != NULL);
 
     while ((**src) == ' ') {
@@ -236,68 +239,81 @@ static void SD_IgnoreWhitespace(const char **src) {
     }
 }
 
-static bool SD_ParseChar(const char **src, const char *name, char ch) {
+SDPRIVATE
+bool sd_parse_char(const char **src, const char *name, char ch) {
     assert(src != NULL && name != NULL);
 
-    SD_IgnoreWhitespace(src);
+    sd_ignore_whitespace(src);
     if ((**src) != ch) {
-        SD_LogError("expected %s - got %c instead", name, (**src));
+        sd_log_error("expected %s - got %c instead", name, (**src));
         return false;
     }
     (*src)++;
     return true;
 }
 
-// <config> ::= '{' <key_values> '}'
-static bool SD_LutParseDSL_config(const char **dsl, SD_Lut *lut) {
+/// Parse the DSL into a tangible SDLut object
+SDPUBLIC
+bool sd_lut_parse(const char *dsl, SDLut *lut) {
     assert(dsl != NULL && lut != NULL);
-    SD_LogDebug("PARSE RULE: <config>");
+    (*lut) = (SDLut) {0};
+    return sd_lut_parse_config(&dsl, lut);
+}
 
-    return SD_ParseChar(dsl, "opening brace", '{')
-      &&   SD_LutParseDSL_key_values(dsl, lut)
-      &&   SD_ParseChar(dsl, "closing brace", '}');
+// <config> ::= '{' <key_values> '}'
+SDPRIVATE
+bool sd_lut_parse_config(const char **dsl, SDLut *lut) {
+    assert(dsl != NULL && lut != NULL);
+    sd_log_debug("PARSE RULE: <config>");
+
+    return sd_parse_char(dsl, "opening brace", '{')
+      &&   sd_lut_parse_key_values(dsl, lut)
+      &&   sd_parse_char(dsl, "closing brace", '}');
 }
 
 // <key_values> ::= <key_value> <key_values_tail>
-static bool SD_LutParseDSL_key_values(const char **dsl, SD_Lut *lut) {
+SDPRIVATE
+bool sd_lut_parse_key_values(const char **dsl, SDLut *lut) {
     assert(dsl != NULL && lut != NULL);
-    SD_LogDebug("PARSE RULE: <key_values>");
+    sd_log_debug("PARSE RULE: <key_values>");
 
-    return SD_LutParseDSL_key_value      (dsl, lut)
-      &&   SD_LutParseDSL_key_values_tail(dsl, lut);
+    return sd_lut_parse_key_value      (dsl, lut)
+      &&   sd_lut_parse_key_values_tail(dsl, lut);
 }
 
 // <key_values_tail> ::= ε
 //                    |  ',' <key_values>
-static bool SD_LutParseDSL_key_values_tail(const char **dsl, SD_Lut *lut) {
+SDPRIVATE
+bool sd_lut_parse_key_values_tail(const char **dsl, SDLut *lut) {
     assert(dsl != NULL && lut != NULL);
-    SD_LogDebug("PARSE RULE: <key_values_tail>");
+    sd_log_debug("PARSE RULE: <key_values_tail>");
 
     if (**dsl != ',') return true;
     (*dsl)++;
-    return SD_LutParseDSL_key_values(dsl, lut);
+    return sd_lut_parse_key_values(dsl, lut);
 }
 
 // <key_value> ::= <key> ':' <list>
-static bool SD_LutParseDSL_key_value(const char **dsl, SD_Lut *lut) {
+SDPRIVATE
+bool sd_lut_parse_key_value(const char **dsl, SDLut *lut) {
     assert(dsl != NULL && lut != NULL);
-    SD_LogDebug("PARSE RULE: <key_values>");
+    sd_log_debug("PARSE RULE: <key_values>");
 
     // TODO: key & value duplication detection
 
     // for mapping
-    size_t keyc = SD_LutKeyCount(lut);
+    size_t keyc = sd_lut_key_count(lut);
 
     // get count before parsing to know where to write mappings
-    size_t valc0 = SD_LutValueCount(lut);
-    bool ok = SD_LutParseDSL_key (dsl, lut)
-       &&     SD_ParseChar(dsl, "colon", ':')
-       &&     SD_LutParseDSL_list(dsl, lut);
+    size_t valc0 = sd_lut_value_count(lut);
+    bool ok = sd_lut_parse_key (dsl, lut)
+       &&     sd_parse_char(dsl, "colon", ':')
+       &&     sd_lut_parse_list(dsl, lut);
     if (!ok) return false;
 
     // TODO: just noticed the redundancy of having the integers pairs when we only need keys
     // TODO: mappings are ordered in value order - hence value index is no longer required
-    size_t valc1 = SD_LutValueCount(lut);
+    size_t valc1 = sd_lut_value_count(lut);
     for (size_t mapidx = valc0; mapidx < valc1; mapidx++) {
         lut->mapping[mapidx][0] = keyc;
         lut->mapping[mapidx][1] = mapidx;
@@ -307,51 +323,48 @@ static bool SD_LutParseDSL_key_value(const char **dsl, SD_Lut *lut) {
 }
 
 // <list> ::= '[' <values> ']'
-static bool SD_LutParseDSL_list(const char **dsl, SD_Lut *lut) {
+SDPRIVATE
+bool sd_lut_parse_list(const char **dsl, SDLut *lut) {
     assert(dsl != NULL && lut != NULL);
-    SD_LogDebug("PARSE RULE: <list>");
+    sd_log_debug("PARSE RULE: <list>");
 
-    return SD_ParseChar(dsl, "opening bracket", '[')
-      &&   SD_LutParseDSL_values(dsl, lut)
-      &&   SD_ParseChar(dsl, "opening bracket", ']');
+    return sd_parse_char(dsl, "opening bracket", '[')
+      &&   sd_lut_parse_values(dsl, lut)
+      &&   sd_parse_char(dsl, "opening bracket", ']');
 }
 
 // <values> ::= <value> <values_tail>
-static bool SD_LutParseDSL_values(const char **dsl, SD_Lut *lut) {
+SDPRIVATE
+bool sd_lut_parse_values(const char **dsl, SDLut *lut) {
     assert(dsl != NULL && lut != NULL);
-    SD_LogDebug("PARSE RULE: <values>");
+    sd_log_debug("PARSE RULE: <values>");
 
-    return SD_LutParseDSL_value      (dsl, lut)
-      &&   SD_LutParseDSL_values_tail(dsl, lut);
+    return sd_lut_parse_value      (dsl, lut)
+      &&   sd_lut_parse_values_tail(dsl, lut);
 }
 
 // <values_tail> ::= ε
 //                 | ',' <values>
-static bool SD_LutParseDSL_values_tail(const char **dsl, SD_Lut *lut) {
+SDPRIVATE
+bool sd_lut_parse_values_tail(const char **dsl, SDLut *lut) {
     assert(dsl != NULL && lut != NULL);
-    SD_LogDebug("PARSE RULE: <values_tail>");
+    sd_log_debug("PARSE RULE: <values_tail>");
 
     if (**dsl != ',') return true;
     (*dsl)++;
-    return SD_LutParseDSL_values(dsl, lut);
+    return sd_lut_parse_values(dsl, lut);
 }
 
-// # the lookup table representation in memory
-// struct SD_Lut {
-//     char    keys   [SD_LUT_MAXKEYS]  [SD_LUT_MAXSTRLEN+1]; # the keys
-//     char    vals   [SD_LUT_MAXVALUES][SD_LUT_MAXSTRLEN+1]; # the values
-//     uint8_t mapping[SD_LUT_MAXVALUES][2];                  # 1:1 associative array of values to keys
-// };
-
 // <key> ::= [VALID FILENAME]
-static bool SD_LutParseDSL_key(const char **dsl, SD_Lut *lut) {
+SDPRIVATE
+bool sd_lut_parse_key(const char **dsl, SDLut *lut) {
     assert(dsl != NULL && lut != NULL);
-    SD_LogDebug("PARSE RULE: <key>");
+    sd_log_debug("PARSE RULE: <key>");
 
-    size_t keyc = SD_LutKeyCount(lut);
+    size_t keyc = sd_lut_key_count(lut);
 
     size_t len = 0;
-    while (!strchr("{}[]:,", (**dsl)) && len != SD_LUT_MAXSTRLEN) {
+    while (!strchr("{}[]:,", (**dsl)) && len != SRCDIFF_MAXLUTSTRLEN) {
         lut->keys[keyc][len] = (**dsl);
 
         (*dsl)++;
@@ -362,14 +375,15 @@ static bool SD_LutParseDSL_key(const char **dsl, SD_Lut *lut) {
 }
 
 // <value> ::= [VALID FILE EXTENSION]
-static bool SD_LutParseDSL_value(const char **dsl, SD_Lut *lut) {
+SDPRIVATE
+bool sd_lut_parse_value(const char **dsl, SDLut *lut) {
     assert(dsl != NULL && lut != NULL);
-    SD_LogDebug("PARSE RULE: <value>");
+    sd_log_debug("PARSE RULE: <value>");
 
-    size_t valc = SD_LutValueCount(lut);
+    size_t valc = sd_lut_value_count(lut);
 
     size_t len = 0;
-    while (!strchr("{}[]:,", (**dsl)) && len != SD_LUT_MAXSTRLEN) {
+    while (!strchr("{}[]:,", (**dsl)) && len != SRCDIFF_MAXLUTSTRLEN) {
         lut->vals[valc][len] = (**dsl);
 
         (*dsl)++;

@@ -6,21 +6,21 @@
 
 #include "libcc.h"
 
-#include "logging.h"
-#include "argv.h"
-#include "commands.h"
+#include "srcdiff.h"
 
 #define SD_LANGDUMP "languages"
 
-int32_t SD_Exec_Register(void) {
-    assert(SD_IsArvParsed() && SD_GetMode() == SD_MODE_REGISTER);
+/// Registers a Tree Sitter grammar to SourceDiff
+SDPUBLIC
+int32_t sd_exec_register(void) {
+    assert(sd_is_argv_parsed() && sd_get_mode() == SD_MODE_REGISTER);
 
-    const char *dirstr = SD_GetArgv(1);
+    const char *dirstr = sd_get_arg(1);
 
     struct dirent *entry;
     DIR *dir = opendir(dirstr);
     if (dir == NULL) {
-        SD_LogError("directory does not exist");
+        sd_log_error("directory does not exist");
         return EXIT_FAILURE;
     }
 
@@ -29,20 +29,20 @@ int32_t SD_Exec_Register(void) {
     bool has_scanner = false;
     while ((entry = readdir(dir)) != NULL) {
         if (strcmp(entry->d_name, "parser.c") == 0) {
-            SD_LogDebug("Found parser.c");
+            sd_log_debug("Found parser.c");
             has_parser = true;
         } else if (strcmp(entry->d_name, "scanner.c") == 0) {
-            SD_LogDebug("Found scanner.c");
+            sd_log_debug("Found scanner.c");
             has_scanner = true;
         } else if (strcmp(entry->d_name, "tree_sitter") == 0) {
-            SD_LogDebug("Found tree_sitter directory");
+            sd_log_debug("Found tree_sitter directory");
             has_include = true;
         }
     }
 
     // the default setup for a tree-sitter grammar
     if (!has_include && !has_parser) {
-        SD_LogError("does not match conventional tree-sitter grammar structure");
+        sd_log_error("does not match conventional tree-sitter grammar structure");
         return EXIT_FAILURE;
     }
 
@@ -60,14 +60,14 @@ int32_t SD_Exec_Register(void) {
     }
 
     if (mkdir(SD_LANGDUMP) == 0) {
-        SD_LogDebug("Created "SD_LANGDUMP" directory");
+        sd_log_debug("Created "SD_LANGDUMP" directory");
     }
 
     cc_set_output_type(cc, CC_OUTPUT_SHARED);
-    cc_set_output(cc, SD_LANGDUMP"/%s."CC_SHARED_LIB_EXT, SD_GetArgv(0));
+    cc_set_output(cc, SD_LANGDUMP"/%s."CC_SHARED_LIB_EXT, sd_get_arg(0));
     cc_invoke(cc);
 
-    SD_LogDebug("INVOKED COMMAND: %s", cc_render_command(cc));
+    sd_log_debug("INVOKED COMMAND: %s", cc_render_command(cc));
 
     cc_delete(cc);
     closedir(dir);

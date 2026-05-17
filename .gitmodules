@@ -1,6 +1,12 @@
 [submodule "vendor/tree-sitter"]
 	path = vendor/tree-sitter
 	url = https://github.com/tree-sitter/tree-sitter.git
+[submodule "vendor/nob.h"]
+	path = vendor/nob.h
+	url = https://github.com/tsoding/nob.h.git
+[submodule "libcc"]
+	path = libcc
+	url = https://github.com/Arsngrobg/LibCC.git
 [submodule "vendor/libcc"]
 	path = vendor/libcc
 	url = https://github.com/Arsngrobg/LibCC.git
