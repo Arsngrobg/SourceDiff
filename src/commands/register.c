@@ -6,9 +6,9 @@ SDPUBLIC
 int32_t sd_exec_register(void) {
     assert(sd_is_argv_parsed() && sd_get_mode() == SD_MODE_REGISTER);
 
-    sd_enter_bin_dir();
     const char *dirstr = sd_get_arg(1);
 
+    sd_set_scope_user();
     struct dirent *entry;
     DIR *dir = opendir(dirstr);
     if (dir == NULL) {
@@ -51,18 +51,19 @@ int32_t sd_exec_register(void) {
         cc_add_source(cc, "%s/scanner.c", dirstr);
     }
 
+    sd_set_scope_binary();
     if (mkdir(SRCDIFF_LANGSTORE) == 0) {
         sd_log_debug("Created "SRCDIFF_LANGSTORE" directory");
     }
+    sd_set_scope_user();
 
     cc_set_output_type(cc, CC_OUTPUT_SHARED);
-    cc_set_output(cc, SRCDIFF_LANGSTORE"/%s."CC_SHARED_LIB_EXT, sd_get_arg(0));
+    cc_set_output(cc, "\"%s/"SRCDIFF_LANGSTORE"%s."CC_SHARED_LIB_EXT"\"", sd_getbwd(), sd_get_arg(0));
     cc_invoke(cc);
 
     sd_log_debug("INVOKED COMMAND: %s", cc_render_command(cc));
 
     cc_delete(cc);
     closedir(dir);
-    sd_exit_bin_dir();
     return EXIT_SUCCESS;
 }

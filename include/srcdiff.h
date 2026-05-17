@@ -224,24 +224,36 @@ bool sd_lut_parse(const char *dsl, SDLut *lut);
 SDPUBLIC
 const TSLanguage *sd_load_language(const char *lang_name);
 
-/// Deallocates the memory used by the language registry
-SDPUBLIC
-void sd_clear_languages(void);
-
 // =============================================================================
 //                     Working Directory Control & Query
 // =============================================================================
 
+/// Overrides the current directory to this one - absolute/relative
+SDPUBLIC
+const char *sd_chdir(const char *fmt, ...);
+
+/// Gets the working directory of the binary
+SDPUBLIC
+const char *sd_getbwd(void);
+
+/// Gets the working directory of the user
+SDPUBLIC
+const char *sd_getcwd(void);
+
 /// Sets the current working directory to the location of this executable
 SDPUBLIC
-void sd_enter_bin_dir(void);
+void sd_set_scope_binary(void);
 
 /// Sets the current working directory to the default
 SDPUBLIC
-void sd_exit_bin_dir(void);
+void sd_set_scope_user(void);
 
 /// Whether the file exists or not - uses format string for ergonomics & returns a voltatile filepath buffer
 SDPUBLIC
 const char *sd_file_exists(const char *fmt, ...);
+
+/// Reads the entire file and returns the pointer to the string - must be managed yourself
+SDPUBLIC
+char *sd_read_entire_file(const char *fmt, ...);
 
 #endif // SRCDIFF_H

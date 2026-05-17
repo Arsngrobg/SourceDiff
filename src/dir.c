@@ -17,7 +17,23 @@
 #   define _sd_chdir              chdir
 #endif // _WIN32
 
-SDPRIVATE
+/// Overrides the current directory to this one - absolute/relative & returns a voltatile filepath buffer
+SDPUBLIC
+const char *sd_chdir(const char *fmt, ...) {
+    SDPRIVATE char pathbuf[SRCDIFF_MAXPATH];
+    assert(fmt != NULL);
+
+    va_list vargs;
+    va_start(vargs, fmt);
+    vsnprintf(pathbuf, SRCDIFF_MAXPATH, fmt, vargs);
+    va_end(vargs);
+
+    chdir(pathbuf);
+    return pathbuf;
+}
+
+/// Gets the working directory of the binary
+SDPUBLIC
 const char *sd_getbwd(void) {
     SDPRIVATE char bindir[MAX_PATH];
     SDPRIVATE bool available = false;
@@ -40,7 +56,8 @@ short_circuit:
     return available ? bindir : NULL;
 }
 
-SDPRIVATE
+/// Gets the working directory of the user
+SDPUBLIC
 const char *sd_getcwd(void) {
     SDPRIVATE char usrdir[MAX_PATH];
     SDPRIVATE bool available = false;
@@ -53,10 +70,6 @@ const char *sd_getcwd(void) {
         available = false;
     } else available = true;
 
-    char *last_slash = strrchr(usrdir, '\\');
-    if (last_slash)
-        *last_slash = '\0';
-
     sd_log_debug("got user directory: %s", usrdir);
 
 short_circuit:
@@ -65,7 +78,7 @@ short_circuit:
 
 /// Sets the current working directory to the location of this executable
 SDPUBLIC
-void sd_enter_bin_dir(void) {
+void sd_set_scope_binary(void) {
     const char *bindir;
     if ((bindir = sd_getbwd()) == NULL)
         return;
@@ -74,9 +87,9 @@ void sd_enter_bin_dir(void) {
         sd_log_debug("entering binary working directory");
 }
 
-/// Sets the current working directory to the default
+/// Sets the current working directory to the location of this executable
 SDPUBLIC
-void sd_exit_bin_dir(void) {
+void sd_set_scope_user(void) {
     const char *usrdir;
     if ((usrdir = sd_getcwd()) == NULL)
         return;
@@ -89,7 +102,7 @@ void sd_exit_bin_dir(void) {
 SDPUBLIC
 const char *sd_file_exists(const char *fmt, ...) {
     SDPRIVATE char pathbuf[SRCDIFF_MAXPATH];
-    assert(file != NULL);
+    assert(fmt != NULL);
 
     va_list vargs;
     va_start(vargs, fmt);
@@ -98,4 +111,34 @@ const char *sd_file_exists(const char *fmt, ...) {
 
     struct stat st;
     return (stat(pathbuf, &st) == 0) ? pathbuf : NULL;
+}
+
+/// Reads the entire file and returns the pointer to the string - must be managed yourself
+SDPUBLIC
+char *sd_read_entire_file(const char *fmt, ...) {
+    assert(fmt != NULL);
+
+    va_list vargs;
+    char pathbuf[SRCDIFF_MAXPATH];
+
+    va_start(vargs, fmt);
+    vsnprintf(pathbuf, SRCDIFF_MAXPATH, fmt, vargs);
+
+    char *file_contents = NULL;
+    FILE *file = fopen(pathbuf, "r");
+    if (file == NULL) {
+        sd_log_error("unable to open the file '%s'", pathbuf);
+        goto defer;
+    }
+    fseek(file, 0, SEEK_END);
+    size_t flen = ftell(file);
+
+    file_contents = malloc(sizeof(char) * (flen + 1));
+    fwrite(file_contents, sizeof(char), flen, file);
+    file_contents[flen] = '\0';
+
+defer:
+    va_end(vargs);
+    fclose(file);
+    return file_contents;
 }

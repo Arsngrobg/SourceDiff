@@ -8,6 +8,7 @@ int32_t sd_exec_list_languages(void) {
 
     int32_t status = EXIT_SUCCESS;
 
+    sd_set_scope_binary();
     struct dirent *entry;
     DIR *dir = opendir(SRCDIFF_LANGSTORE);
     if (dir == NULL) {
@@ -41,8 +42,8 @@ int32_t sd_exec_list_languages(void) {
     }
 
     closedir(dir);
-    sd_exit_bin_dir();
 
 short_circuit:
+    sd_set_scope_user();
     return status;
 }

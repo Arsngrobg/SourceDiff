@@ -18,7 +18,7 @@ SDPUBLIC
 bool sd_write_lut(const SDLut *lut) {
     assert(lut != NULL);
 
-    sd_enter_bin_dir();
+    sd_set_scope_binary();
     FILE *lut_file = fopen(SRCDIFF_LUTSTORE, "w+b");
     if (lut_file == NULL) {
         sd_log_error("unable to obtain a handle to the LUT file");
@@ -30,7 +30,7 @@ bool sd_write_lut(const SDLut *lut) {
         return false;
     }
     fclose(lut_file);
-    sd_exit_bin_dir();
+    sd_set_scope_user();
     return true;
 }
 
@@ -40,8 +40,8 @@ SDLut *sd_get_lut(void) {
     SDPRIVATE SDLut lut    = {0};
     SDPRIVATE bool   loaded = false;
 
-    sd_enter_bin_dir();
     if (!loaded) {
+        sd_set_scope_binary();
         FILE *lut_file = fopen(SRCDIFF_LUTSTORE, "rb");
         if (lut_file != NULL) {
             if (fread(&lut, 1, sizeof(SDLut), lut_file) != sizeof(SDLut)) {
@@ -50,8 +50,8 @@ SDLut *sd_get_lut(void) {
             fclose(lut_file);
         }
         loaded = true;
+        sd_set_scope_user();
     }
-    sd_exit_bin_dir();
 
     return &lut;
 }
@@ -60,10 +60,6 @@ SDLut *sd_get_lut(void) {
 SDPUBLIC
 SDLut *sd_empty_lut(void) {
     SDLut *lut = calloc(1, sizeof(SDLut)); // 0 init for parity
-    if (lut == NULL) {
-        sd_log_error("out of system memory");
-    }
-
     return lut;
 }
 
@@ -134,7 +130,7 @@ size_t sd_lut_key_idx(const SDLut *lut, const char *key) {
 /// The index of the value in the LUT - is the number of values if it does not exist
 SDPUBLIC
 size_t sd_lut_value_idx(const SDLut *lut, const char *value) {
-    assert(lut != NULL && key != NULL);
+    assert(lut != NULL && value != NULL);
 
     size_t idx = 0;
     while (strcmp(sd_lut_value_at(lut, idx), value) != 0) {
@@ -146,7 +142,7 @@ size_t sd_lut_value_idx(const SDLut *lut, const char *value) {
 /// The key from the lookup table
 SDPUBLIC
 const char *sd_lut_key_at(const SDLut *lut, size_t idx) {
-    assert(lut != NULL && idx >= sd_lut_key_count(lut));
+    assert(lut != NULL && idx < sd_lut_key_count(lut));
 
     return lut->keys[idx];
 }
@@ -154,7 +150,7 @@ const char *sd_lut_key_at(const SDLut *lut, size_t idx) {
 /// The value from the lookup table
 SDPUBLIC
 const char *sd_lut_value_at(const SDLut *lut, size_t idx) {
-    assert(lut != NULL && idx >= sd_lut_value_count(lut));
+    assert(lut != NULL && idx < sd_lut_value_count(lut));
 
     return lut->vals[idx];
 }
