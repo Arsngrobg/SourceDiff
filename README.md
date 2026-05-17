@@ -52,6 +52,14 @@ To register a new language parser:
 ```
 You specify the resulting name of the shared library that **SourceDiff** references and the source directory of the parser `.c` files.
 
+One additional layer of configuration comes with the lookup table. You must configure it using a syntax very similar to Python's
+dictionary definition syntax. You define a configuration as a key, followed by many values which are file extensions **SourceDiff**
+will use to associate files to language parsers.
+```bash
+~ > ./srcdiff lut set \{ python: \[ py, pyw, pyi \]\}
+```
+This will work in practice, only if you have configured a Python grammar.
+
 For more information on how to use this software, use the following command:
 ```bash
 ~ > ./srcdiff --help
