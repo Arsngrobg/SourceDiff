@@ -35,11 +35,10 @@
     fprintf(stderr, "%s: "ANSI_ERROR"error:"ANSI_RESET" "fmt"\n", sd_exec_name(), ##__VA_ARGS__)
 
 /// Informative messages only when verbose is enabled
-#define sd_log_info(fmt, ...)                                                                              \
-    do {                                                                                                   \
-        if (sd_is_option_set(SD_OPTION_VERBOSE)) {                                                         \
-            fprintf(stdout, "%s: "ANSI_INFO"info:"ANSI_RESET" "fmt"\n", sd_exec_name(), ##__VA_ARGS__) \
-        }                                                                                                  \
+#define sd_log_info(fmt, ...)                                                                           \
+    do {                                                                                                \
+        if (sd_is_option_set(SD_OPTION_VERBOSE))                                                        \
+            fprintf(stdout, "%s: "ANSI_INFO"info:"ANSI_RESET" "fmt"\n", sd_exec_name(), ##__VA_ARGS__); \
     } while (0)
 
 /// Debug-only logging
