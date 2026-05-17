@@ -13,9 +13,7 @@ SDPUBLIC
 int32_t sd_exec_register(void) {
     assert(sd_is_argv_parsed() && sd_get_mode() == SD_MODE_REGISTER);
 
-    if (!sd_enter_bin_dir())
-        return EXIT_FAILURE;
-
+    sd_enter_bin_dir();
     const char *dirstr = sd_get_arg(1);
 
     struct dirent *entry;
@@ -72,5 +70,6 @@ int32_t sd_exec_register(void) {
 
     cc_delete(cc);
     closedir(dir);
-    return !sd_exit_bin_dir();
+    sd_exit_bin_dir();
+    return EXIT_SUCCESS;
 }

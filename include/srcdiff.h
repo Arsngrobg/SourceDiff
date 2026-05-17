@@ -220,22 +220,26 @@ bool sd_lut_parse(const char *dsl, SDLut *lut);
 
 /// Loads the language specified by the `lang_name`
 SDPUBLIC
-TSLanguage *sd_load_language(const char *lang_name);
+const TSLanguage *sd_load_language(const char *lang_name);
 
 /// Deallocates the memory used by the language registry
 SDPUBLIC
-TSLanguage *sd_clear_languages(void);
+void sd_clear_languages(void);
 
 // =============================================================================
-//                         Working Directory Control
+//                     Working Directory Control & Query
 // =============================================================================
 
 /// Sets the current working directory to the location of this executable
 SDPUBLIC
-bool sd_enter_bin_dir(void);
+void sd_enter_bin_dir(void);
 
 /// Sets the current working directory to the default
 SDPUBLIC
-bool sd_exit_bin_dir(void);
+void sd_exit_bin_dir(void);
+
+/// Whether the file exists or not - uses format string for ergonomics & returns a voltatile filepath buffer
+SDPUBLIC
+const char *sd_file_exists(const char *fmt, ...);
 
 #endif // SRCDIFF_H

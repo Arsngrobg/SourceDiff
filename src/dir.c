@@ -32,7 +32,7 @@ const char *sd_getbwd(void) {
         goto short_circuit;
 
     if (_sd_getbwd(bindir, SRCDIFF_MAXPATH) == 0) {
-        sd_log_error("failed to retrieve binary directory data");
+        sd_log_warn("failed to retrieve binary directory data");
         available = false;
     } else available = true;
 
@@ -71,40 +71,37 @@ short_circuit:
 
 /// Sets the current working directory to the location of this executable
 SDPUBLIC
-bool sd_enter_bin_dir(void) {
+void sd_enter_bin_dir(void) {
     const char *bindir;
     if ((bindir = sd_getbwd()) == NULL)
-        return false;
+        return;
 
-    sd_log_debug("entering binary working directory");
-    return _sd_chdir(bindir) == 0;
+    if (_sd_chdir(bindir) == 0)
+        sd_log_debug("entering binary working directory");
 }
 
 /// Sets the current working directory to the default
 SDPUBLIC
-bool sd_exit_bin_dir(void) {
+void sd_exit_bin_dir(void) {
     const char *usrdir;
     if ((usrdir = sd_getcwd()) == NULL)
-        return false;
+        return;
 
-    sd_log_debug("entering user working directory");
-    return _sd_chdir(usrdir) == 0;
+    if (_sd_chdir(usrdir) == 0)
+        sd_log_debug("entering user working directory");
 }
 
-/// Whether the file exists or not - uses format string for ergonomics
+/// Whether the file exists or not - uses format string for ergonomics & returns a voltatile filepath buffer
 SDPUBLIC
-bool sd_file_exists(const char *fmt, ...) {
+const char *sd_file_exists(const char *fmt, ...) {
+    SDPRIVATE char pathbuf[SRCDIFF_MAXPATH];
     assert(file != NULL);
-
-    char pathbuf[SRCDIFF_MAXPATH];
 
     va_list vargs;
     va_start(vargs, fmt);
     vsnprintf(pathbuf, SRCDIFF_MAXPATH, fmt, vargs);
     va_end(vargs);
 
-    printf("%s\n", pathbuf);
-
     struct stat st;
-    return stat(pathbuf, &st) == 0;
+    return (stat(pathbuf, &st) == 0) ? pathbuf : NULL;
 }

@@ -15,11 +15,6 @@ int32_t sd_exec_list_languages(void) {
 
     int32_t status = EXIT_SUCCESS;
 
-    if (!sd_enter_bin_dir()) {
-        status = EXIT_FAILURE;
-        goto short_circuit;
-    }
-
     struct dirent *entry;
     DIR *dir = opendir(SRCDIFF_LANGSTORE);
     if (dir == NULL) {
@@ -53,7 +48,7 @@ int32_t sd_exec_list_languages(void) {
     }
 
     closedir(dir);
-    status = !sd_exit_bin_dir();
+    sd_exit_bin_dir();
 
 short_circuit:
     return status;

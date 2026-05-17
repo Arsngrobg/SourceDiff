@@ -24,9 +24,7 @@ SDPUBLIC
 bool sd_write_lut(const SDLut *lut) {
     assert(lut != NULL);
 
-    if (!sd_enter_bin_dir())
-        return false;
-
+    sd_enter_bin_dir();
     FILE *lut_file = fopen(SRCDIFF_LUTSTORE, "w+b");
     if (lut_file == NULL) {
         sd_log_error("unable to obtain a handle to the LUT file");
@@ -38,7 +36,8 @@ bool sd_write_lut(const SDLut *lut) {
         return false;
     }
     fclose(lut_file);
-    return sd_exit_bin_dir();
+    sd_exit_bin_dir();
+    return true;
 }
 
 /// Gets the persistent lookup table (empty if none exists)
@@ -47,9 +46,7 @@ SDLut *sd_get_lut(void) {
     SDPRIVATE SDLut lut    = {0};
     SDPRIVATE bool   loaded = false;
 
-    if (!sd_enter_bin_dir())
-        goto short_circuit;
-
+    sd_enter_bin_dir();
     if (!loaded) {
         FILE *lut_file = fopen(SRCDIFF_LUTSTORE, "rb");
         if (lut_file != NULL) {
@@ -60,10 +57,8 @@ SDLut *sd_get_lut(void) {
         }
         loaded = true;
     }
-
     sd_exit_bin_dir();
 
-short_circuit:
     return &lut;
 }
 
