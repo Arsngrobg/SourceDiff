@@ -24,7 +24,7 @@ int32_t sd_exec_lut_add(void) {
 
     status = (int32_t) !(
            sd_lut_parse(sd_get_arg(0), lut)
-        && sd_lut_add  (lut, plut)
+        && sd_lut_add  (plut, lut)
         && sd_write_lut(lut)
     );
 

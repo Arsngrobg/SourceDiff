@@ -220,4 +220,16 @@ TSLanguage *sd_load_language(const char *lang_name);
 SDPUBLIC
 TSLanguage *sd_clear_languages(void);
 
+// =============================================================================
+//                         Working Directory Control
+// =============================================================================
+
+/// Sets the current working directory to the location of this executable
+SDPUBLIC
+bool sd_enter_bin_dir(void);
+
+/// Sets the current working directory to the default
+SDPUBLIC
+bool sd_exit_bin_dir(void);
+
 #endif // SRCDIFF_H
