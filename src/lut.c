@@ -148,7 +148,7 @@ SDPUBLIC
 const char *sd_lut_key_at(const SDLut *lut, size_t idx) {
     assert(lut != NULL && idx >= sd_lut_key_count(lut));
 
-    return idx < lut->keys[idx];
+    return lut->keys[idx];
 }
 
 /// The value from the lookup table
