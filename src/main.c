@@ -1,6 +1,4 @@
 #include <assert.h>
-#include <string.h>
-#include <dirent.h>
 
 #include "libcc.h"
 
@@ -55,41 +53,7 @@ int32_t sd_exec(void) {
         fprintf(stdout, "v%s\n", SD_VERSION);
         goto short_circuit;
     } else if (sd_is_option_set(SD_OPTION_LIST_LANGUAGES)) {
-        struct dirent *entry;
-        DIR *dir = opendir("languages");
-        if (dir == NULL) {
-            sd_log("no languages registered");
-            status = EXIT_SUCCESS;
-            goto short_circuit;
-        }
-
-        size_t amount = 0;
-        while ((entry = readdir(dir)) != NULL) {
-            char *dot = strrchr(entry->d_name, '.');
-            if (dot == NULL || strcmp(dot+1, CC_SHARED_LIB_EXT) != 0) {
-                continue;
-            }
-            amount++;
-        }
-
-        rewinddir(dir);
-
-        if (amount > 0) {
-            sd_log("registered languages: " ANSI_INFO "%lld" ANSI_RESET, amount);
-            while ((entry = readdir(dir)) != NULL) {
-                char *dot = strrchr(entry->d_name, '.');
-                if (dot == NULL || strcmp(dot+1, CC_SHARED_LIB_EXT) != 0) {
-                    continue;
-                }
-                *dot = '\0';
-
-                fprintf(stdout, " - %s\n", entry->d_name);
-            }
-        }
-
-        closedir(dir);
-
-        status = EXIT_SUCCESS;
+        status = sd_exec_list_languages();
         goto short_circuit;
     }
 
