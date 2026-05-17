@@ -22,8 +22,8 @@
 
 SDPRIVATE
 const char *sd_getbwd(void) {
-    static char bindir[MAX_PATH];
-    static bool available = false;
+    SDPRIVATE char bindir[MAX_PATH];
+    SDPRIVATE bool available = false;
 
     if (available)
         goto short_circuit;
@@ -45,8 +45,8 @@ short_circuit:
 
 SDPRIVATE
 const char *sd_getcwd(void) {
-    static char usrdir[MAX_PATH];
-    static bool available = false;
+    SDPRIVATE char usrdir[MAX_PATH];
+    SDPRIVATE bool available = false;
 
     if (available)
         goto short_circuit;
