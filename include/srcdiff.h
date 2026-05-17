@@ -185,6 +185,14 @@ bool sd_lut_has_key(const SDLut *lut, const char *key);
 SDPUBLIC
 bool sd_lut_has_value(const SDLut *lut, const char *value);
 
+/// The index of the key in the LUT - is the number of keys if it does not exist
+SDPUBLIC
+size_t sd_lut_key_idx(const SDLut *lut, const char *key);
+
+/// The index of the value in the LUT - is the number of values if it does not exist
+SDPUBLIC
+size_t sd_lut_value_idx(const SDLut *lut, const char *value);
+
 /// The key from the lookup table
 SDPUBLIC
 const char *sd_lut_key_at(const SDLut *lut, size_t idx);

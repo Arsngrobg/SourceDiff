@@ -1,4 +1,4 @@
-#include "srcdiff_utils.h"
+#include "srcdiff_stdutils.h"
 #include "srcdiff.h"
 
 #define SRCDIFF_LUTSTORE     "LUT" // the file that the persistent lookup table is stored
@@ -119,18 +119,42 @@ bool sd_lut_has_value(const SDLut *lut, const char *value) {
     return false;
 }
 
+/// The index of the key in the LUT - is the number of keys if it does not exist
+SDPUBLIC
+size_t sd_lut_key_idx(const SDLut *lut, const char *key) {
+    assert(lut != NULL && key != NULL);
+
+    size_t idx = 0;
+    while (strcmp(sd_lut_key_at(lut, idx), key) != 0) {
+        idx++;
+    }
+    return idx;
+}
+
+/// The index of the value in the LUT - is the number of values if it does not exist
+SDPUBLIC
+size_t sd_lut_value_idx(const SDLut *lut, const char *value) {
+    assert(lut != NULL && key != NULL);
+
+    size_t idx = 0;
+    while (strcmp(sd_lut_value_at(lut, idx), value) != 0) {
+        idx++;
+    }
+    return idx;
+}
+
 /// The key from the lookup table
 SDPUBLIC
 const char *sd_lut_key_at(const SDLut *lut, size_t idx) {
-    assert(lut != NULL);
+    assert(lut != NULL && idx >= sd_lut_key_count(lut));
 
-    return lut->keys[idx];
+    return idx < lut->keys[idx];
 }
 
 /// The value from the lookup table
 SDPUBLIC
 const char *sd_lut_value_at(const SDLut *lut, size_t idx) {
-    assert(lut != NULL);
+    assert(lut != NULL && idx >= sd_lut_value_count(lut));
 
     return lut->vals[idx];
 }

@@ -2,8 +2,8 @@
 #include "srcdiff.h"
 
 SDPRIVATE
-int32_t sd_exec_structural_diff(const char *file1, const char *file2) {
-    assert(file1 != NULL && file2 != NULL);
+int32_t sd_exec_structural_diff(const TSLanguage *lang, const char *file1, const char *file2) {
+    assert(lang != NULL && file1 != NULL && file2 != NULL);
 }
 
 /// Computes the difference between two file, where: F1 - F2
@@ -21,7 +21,22 @@ int32_t sd_exec_diff(void) {
     // both files have no extension
     if (file1_ext == NULL && file2_ext == NULL) {
         sd_log_warn("both files do not have a file extension - hence cannot be represented by a language");
+        return EXIT_FAILURE;
+    }
+    file1_ext++;
+    file2_ext++;
+
+    const char *file1_langname = sd_lut_mapping_for(file1_ext);
+    const char *file2_langname = sd_lut_mapping_for(file2_ext);
+    if (strcmp(file1_langname, file2_langname) != 0) {
+        sd_log_error("both files have mappings to different languages - cannot execute diff");
+        return EXIT_FAILURE;
     }
 
-    return 0;
+    const TSLanguage *lang = sd_load_language(file1_ext);
+    if (lang == NULL) {
+        sd_log_error("");
+        return EXIT_FAILURE;
+    }
+    return sd_exec_structural_diff();
 }
