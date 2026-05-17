@@ -1,12 +1,6 @@
 #ifndef SRCDIFF_H
 #define SRCDIFF_H
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
-
-#include "tree_sitter/api.h"
-
 #define SDPUBLIC  extern // Explicitly describes a function as a local function
 #define SDPRIVATE static // Explicitly describes a function as a local function
 
