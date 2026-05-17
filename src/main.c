@@ -1,7 +1,4 @@
-#include <assert.h>
-
-#include "libcc.h"
-
+#include "srcdiff_utils.h"
 #include "srcdiff.h"
 
 #if !defined(SD_VERSION) || !defined(SD_DESCRIPTION) || !defined(SD_DOCS)

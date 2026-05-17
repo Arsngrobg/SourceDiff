@@ -1,7 +1,4 @@
-#include <assert.h>
-#include <stdint.h>
-#include <stdlib.h>
-
+#include "srcdiff_stdutils.h"
 #include "srcdiff.h"
 
 /// Executes structural analysis of the files defined by the glob pattern

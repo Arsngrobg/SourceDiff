@@ -1,6 +1,4 @@
-#include <assert.h>
-#include <stdlib.h>
-
+#include "srcdiff_stdutils.h"
 #include "srcdiff.h"
 
 /// Destroys the persistent lookup table to default configuration (equivalent to 'lut set {}')

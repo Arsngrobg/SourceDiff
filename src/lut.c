@@ -1,10 +1,4 @@
-#include <assert.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
+#include "srcdiff_utils.h"
 #include "srcdiff.h"
 
 #define SRCDIFF_LUTSTORE     "LUT" // the file that the persistent lookup table is stored

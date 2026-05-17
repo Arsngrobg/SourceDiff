@@ -1,7 +1,4 @@
-#include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
-
+#include "srcdiff_stdutils.h"
 #include "srcdiff.h"
 
 /// Outputs information about the persistent lookup table

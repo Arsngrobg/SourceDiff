@@ -1,11 +1,4 @@
-#include <assert.h>
-#include <stdint.h>
-#include <stddef.h>
-#include <string.h>
-#include <dirent.h>
-
-#include "libcc.h"
-
+#include "srcdiff_stdutils.h"
 #include "srcdiff.h"
 
 /// Lists all registered languages - according to the user's platform

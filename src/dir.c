@@ -1,10 +1,4 @@
-#include <assert.h>
-#include <stdarg.h>
-#include <stdbool.h>
-#include <sys/stat.h>
-
-#include "tree_sitter/api.h"
-
+#include "srcdiff_stdutils.h"
 #include "srcdiff.h"
 
 #ifdef _WIN32

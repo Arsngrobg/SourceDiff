@@ -1,6 +1,4 @@
-#include <assert.h>
-#include <stdlib.h>
-
+#include "srcdiff_stdutils.h"
 #include "srcdiff.h"
 
 /// Sets the persistent lookup table using the high-level DSL

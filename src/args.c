@@ -1,6 +1,4 @@
-#include <assert.h>
-#include <string.h>
-
+#include "srcdiff_stdutils.h"
 #include "srcdiff.h"
 
 #define SRCDIFF_ARGC     (2)                        // the most arguments ever required

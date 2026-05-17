@@ -1,11 +1,4 @@
-#include <assert.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <dirent.h>
-
-#include "libcc.h"
-
+#include "srcdiff_stdutils.h"
 #include "srcdiff.h"
 
 /// Registers a Tree Sitter grammar to SourceDiff
