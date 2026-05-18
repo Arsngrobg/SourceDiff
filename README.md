@@ -56,7 +56,7 @@ One additional layer of configuration comes with the lookup table. You must conf
 dictionary definition syntax. You define a configuration as a key, followed by many values which are file extensions **SourceDiff**
 will use to associate files to language parsers.
 ```bash
-~ > ./srcdiff lut set \{ python: \[ py, pyw, pyi \]\}
+~ > ./srcdiff lut set {python:[py,pyw,pyi]}
 ```
 This will work in practice, only if you have configured a Python grammar.
 
