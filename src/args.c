@@ -159,6 +159,9 @@ bool sd_parse_argv(int32_t argc, const char *argv[]) {
                 continue;
             }
         }
+        else {
+            sd_log_error("unknown argument '%s'", argv[arg]);
+        }
     }
 
     return !error;
