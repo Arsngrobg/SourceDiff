@@ -20,6 +20,10 @@
 #define sd_log(fmt, ...) \
     fprintf(stdout, "%s: "fmt"\n", sd_exec_name(), ##__VA_ARGS__)
 
+/// Logging for function for logging to the file
+#define sd_log_file(fmt, ...) \
+    fprintf(sd_get_output_file(), "%s: "fmt"\n", sd_exec_name(), ##__VA_ARGS__)
+
 /// Warning messages and any issues that are not 100% detrimental to the lifetime of the program
 #define sd_log_warn(fmt, ...) \
     fprintf(stderr, "%s: "ANSI_WARN"warn:"ANSI_RESET" "fmt"\n", sd_exec_name(), ##__VA_ARGS__)
@@ -87,6 +91,10 @@ const char *sd_exec_name(void);
 /// Gets the argument at `idx`
 SDPUBLIC
 const char *sd_get_arg(size_t idx);
+
+/// Gets the number of arguments
+SDPUBLIC
+size_t sd_get_argc(void);
 
 /// Gets the output file (if -o flag was used)
 SDPUBLIC

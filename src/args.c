@@ -50,6 +50,7 @@ bool sd_parse_argv(int32_t argc, const char *argv[]) {
             sd_log_debug("diff ARG[1] = '%s'", argv[arg+2]);
             args.args = argv + arg + 1;
             args.argc = 2;
+            arg += args.argc;
         }
         else if (strcmp(argv[arg], "analyse") == 0) {
             args.mode = SD_MODE_ANALYSE;
@@ -61,7 +62,8 @@ bool sd_parse_argv(int32_t argc, const char *argv[]) {
 
             sd_log_debug("analyse ARG[0] = '%s'", argv[0]);
             args.args = argv + arg + 1;
-            args.argc = 1;
+            args.argc = argc - (arg + 1);
+            arg = argc;
         }
         else if (strcmp(argv[arg], "lint") == 0) {
             args.mode = SD_MODE_LINT;
@@ -73,7 +75,8 @@ bool sd_parse_argv(int32_t argc, const char *argv[]) {
 
             sd_log_debug("lint ARG[0] = '%s'", argv[arg+1]);
             args.args = argv + arg + 1;
-            args.argc = 1;
+            args.argc = argc - (arg + 1);
+            arg = argc;
         }
         else if (strcmp(argv[arg], "register") == 0) {
             args.mode = SD_MODE_REGISTER;
@@ -87,6 +90,7 @@ bool sd_parse_argv(int32_t argc, const char *argv[]) {
             sd_log_debug("register ARG[1] = '%s'", argv[arg+2]);
             args.args = argv + arg + 1;
             args.argc = 2;
+            arg += args.argc;
         }
         else if (strcmp(argv[arg], "lut") == 0) {
             args.mode = SD_MODE_LUT;
@@ -124,6 +128,7 @@ bool sd_parse_argv(int32_t argc, const char *argv[]) {
                 sd_log_debug("lut add ARG[0] = '%s'", argv[arg+1]);
                 args.args = argv + arg + 1;
                 args.argc = 1;
+                arg += args.argc;
             } else {
                 error = true;
                 sd_log_error("illegal lut sub mode");
@@ -179,6 +184,13 @@ SDPUBLIC
 const char *sd_get_arg(size_t idx) {
     assert(sd_is_argv_parsed() && idx < args.argc);
     return args.args[idx];
+}
+
+/// Gets the number of arguments
+SDPUBLIC
+size_t sd_get_argc(void) {
+    assert(sd_is_argv_parsed());
+    return args.argc;
 }
 
 /// Gets the output file (if -o flag was used)

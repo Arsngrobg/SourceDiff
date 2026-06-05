@@ -1,4 +1,5 @@
-def process(x, y):
-    if x >= y:
-        return x + y + 1
-    return x - y
+def min(x, y):
+    return x if x < y else y
+
+def min(x, y):
+    return x if x < y else y
